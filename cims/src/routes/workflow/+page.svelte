@@ -20,7 +20,7 @@
     .main-content {
         display: grid;
         grid-template-columns: 1fr 8fr;
-        gap: 5em;
+        gap: 2em;
         
         outline: 5px solid pink;
     }
