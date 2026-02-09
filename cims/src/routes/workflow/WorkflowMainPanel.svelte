@@ -1,5 +1,5 @@
 <script lang="ts">
-    import WorkflowPhase from "./WorkflowPhase.svelte";
+    import WorkflowPhase from "../../lib/WorkflowPhase.svelte";
 
     let activePhase = $state("Prework");
     let phases = ["Prework", "Review and Approval", "Signing and Activation", "Postwork"];

@@ -1,0 +1,31 @@
+<script lang="ts">
+    import Prework from "$lib/phases/Prework.svelte";
+    import ReviewApproval from "$lib/phases/ReviewApproval.svelte";
+    import SigningActivation from "$lib/phases/SigningActivation.svelte";
+    import Postwork from "$lib/phases/Postwork.svelte";
+
+    export let phase: string;
+</script>
+
+<div class="phase debug-box">
+    <h2 style="text-align:center">{phase}</h2>
+
+    {#if phase === "Prework"}
+        <Prework />
+    {:else if phase === "Review and Approval"}
+        <ReviewApproval />
+    {:else if phase === "Signing and Activation"}
+        <SigningActivation />
+    {:else if phase === "Postwork"}
+        <Postwork />
+    {/if}
+</div>
+
+<style>
+    .phase {
+        padding: 1rem;
+    }
+    .debug-box {
+        outline: 5px solid orange;
+    }
+</style>
