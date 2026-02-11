@@ -1,5 +1,5 @@
 <script lang="ts">
-	import favicon from '$lib/assets/favicon.svg';
+	import upSeal from '$lib/assets/UP-Seal.png';
 	import upseLogo from '$lib/assets/UPSE CMS logo.png'; 
 	import { Workflow, FilePlusCorner, Search } from 'lucide-svelte';
 
@@ -8,7 +8,7 @@
 
 <svelte:head>
 	<title>UPSE Contracts Management System</title>
-	<link rel="icon" href={favicon} />
+	<link rel="icon" href={upSeal} />
 </svelte:head>
 
 <header class="header-container">
