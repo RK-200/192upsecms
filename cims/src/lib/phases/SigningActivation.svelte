@@ -1,8 +1,8 @@
 <script lang="ts">
     let checklist = [
-        { text: "party 1", done: false },
-        { text: "party 2", done: false },
-        { text: "party 3", done: false }
+        { text: "Party 1", done: false },
+        { text: "Party 2", done: false },
+        { text: "Party 3", done: false }
 
     ];
     let notes = "";
