@@ -2,32 +2,40 @@
     import WorkflowMainPanel from "./WorkflowMainPanel.svelte";
     import { Pencil, Check } from 'lucide-svelte';
 
+    let {data} = $props();
+    let {workflows} = data;
+
     let workflowName = $state("New Workflow");
-    let workflowList = $state("New Workflow"); // temporarily not a list yet
+
+    //let workflowList = $state("New Workflow"); // temporarily not a list yet
     let isEditing = $state(false);
 
     function startEditing() {
         isEditing = true;
     }
 
+    // i disable this for now
     function saveName() {
-        if (workflowName.trim() !== "") {
-            workflowList = workflowName;
-            isEditing = false;
-        }
+    //    if (workflowName.trim() !== "") {
+    //        workflowList = workflowName;
+    //        isEditing = false;
+    //    }
     }
 
+    // this too
     function handleKeydown(event: KeyboardEvent) {
-        if (event.key === 'Enter') {
-            saveName();
-        }
+    //    if (event.key === 'Enter') {
+    //        saveName();
+    //    }
     }
 </script>
 
 <div class="main-content">
     <div class="sidebar">
         <h2>Workflows</h2>
-        <p>{workflowList}</p>
+        {#each workflows as w}
+            <p>{w.name}</p>
+        {/each}
     </div>
 
     <div class="workflow-area">
