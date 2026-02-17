@@ -1,10 +1,7 @@
 <script lang="ts">
-    let checklist = [
-        { text: "Party 1", done: false },
-        { text: "Party 2", done: false },
-        { text: "Party 3", done: false }
-
-    ];
+    let checklist = {
+		"items": ["UPSE", "DCS", "OSPA", "Malacanang"]
+	}
     let notes = "";
 
 </script>
@@ -14,15 +11,18 @@
 	<div class="checklist-section">
 		<h3>Checklist</h3>
 		<div class="checklist-items">
-			{#each checklist as item}
-				<label class="custom-checkbox">
-					<input type="checkbox" bind:checked={item.done} />
-					<span class="checkmark"></span>
-					{item.text}
-				</label>
+			{#each checklist.items as item}
+				<div>
+					{item}
+					<button class="pill-button">this be a delete button</button>
+				</div>
 			{/each}
 		</div>
-		<button class="pill-button">Signature</button>
+		<h3>Add new signatory</h3>
+		<div class="url-input-container">
+			<input type="text" placeholder="Party Name"/>
+			<button class="pill-button">Add Signatory</button>
+		</div>
 	</div>
 </div>
 
@@ -104,4 +104,15 @@
 	.pill-button:hover {
 		background-color: #5a1313;
 	}
+
+	.url-input-container {
+		display: flex;
+		background: transparent;
+		border: none;
+		border-radius: 8px;
+		padding: 10px 15px;
+		margin-bottom: 30px;
+	}
+
+
 </style>
