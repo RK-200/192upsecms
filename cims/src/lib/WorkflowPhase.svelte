@@ -1,8 +1,8 @@
 <script lang="ts">
-    import Prework from "$lib/phases/Prework.svelte";
-    import ReviewApproval from "$lib/phases/ReviewApproval.svelte";
-    import SigningActivation from "$lib/phases/SigningActivation.svelte";
-    import Postwork from "$lib/phases/Postwork.svelte";
+    import Prework from "$lib/phases_workflow/Prework.svelte";
+    import ReviewApproval from "$lib/phases_workflow/ReviewApproval.svelte";
+    import SigningActivation from "$lib/phases_workflow/SigningActivation.svelte";
+    import Postwork from "$lib/phases_workflow/Postwork.svelte";
 
     export let phase: string;
 </script>
