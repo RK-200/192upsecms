@@ -4,29 +4,22 @@
     import SigningActivation from "$lib/phases_contract/SigningActivation.svelte";
     import Postwork from "$lib/phases_contract/Postwork.svelte";
     
-    export type Phase =
-        | "Prework"
-        | "Review and Approval"
-        | "Signing and Activation"
-        | "Postwork";
-
-    export let phase: Phase;
+    export let phase: string;
     export let onNext: () => void;
-    export let onPrev: () => void;
-        
+    export let onBack: () => void;
 </script>
 
 <div class="phase debug-box">
     <h2 style="text-align:center">{phase}</h2>
 
     {#if phase === "Prework"}
-        <Prework />
+    <Prework on:next={onNext} />
     {:else if phase === "Review and Approval"}
-        <ReviewApproval />
+    <ReviewApproval on:next={onNext} on:back={onBack} />
     {:else if phase === "Signing and Activation"}
-        <SigningActivation />
+    <SigningActivation on:next={onNext} on:back={onBack} />
     {:else if phase === "Postwork"}
-        <Postwork />
+    <Postwork on:back={onBack} />
     {/if}
 </div>
 

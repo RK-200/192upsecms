@@ -1,90 +1,34 @@
 <script lang="ts">
     import WorkflowPhase from "../../lib/CreateContractPhase.svelte";
 
-    type Phase =
-        | "Prework"
-        | "Review and Approval"
-        | "Signing and Activation"
-        | "Postwork";
-
-    let activePhase = $state<Phase>("Prework");
-
-    const phases: Phase[] = [
-        "Prework",
-        "Review and Approval",
-        "Signing and Activation",
-        "Postwork"
-    ];
-
-    let formData = $state<Record<Phase, any>>({
-        "Prework": { title: "", description: "" },
-        "Review and Approval": { reviewer: "" },
-        "Signing and Activation": { signer: "" },
-        "Postwork": { notes: "" }
-    });
-
-    let showWarning = $state(false);
-
-    function validatePhase(phase: Phase) {
-        const data = formData[phase];
-        return Object.values(data).every(
-            (value) => value !== null && value.toString().trim() !== ""
-        );
-    }
-
-    function tryChangePhase(nextPhase: Phase) {
-        if (!validatePhase(activePhase)) {
-            showWarning = true;
-            return;
-        }
-        activePhase = nextPhase;
-    }
-
-    function nextPhase(){
-        const index = phases.indexOf(activePhase);
-        if(index < phases.length -1){
-            activePhase = phases[index+1];
-        }
-    }
+    let activePhase = $state("Prework");
+    let phases = ["Prework", "Review and Approval", "Signing and Activation", "Postwork"];
     
-    function prevPhase() {
-        const index = phases.indexOf(activePhase);
-        if (index > 0) {
-            activePhase = phases[index - 1];
-  }
-}
+    function goToNextPhase() {
+        const currentIndex = phases.indexOf(activePhase);
+        activePhase = phases[currentIndex + 1] ?? activePhase;
+    }
 
-    function closeWarning() {
-        showWarning = false;
+    function onHeaderClick(phase: string) {
+        activePhase = phase;
     }
 </script>
 
 <div class="phases-container">
-    <div class="tab-bar">
-        {#each phases as phase}
-            <button class="tab-button {activePhase === phase ? 'active' : ''}" on:click={() => tryChangePhase(phase)}>
-                {phase}
-            </button>
-        {/each}
-    </div>
+    {#each phases as phase}
+    <button class="tab-button {activePhase === phase ? 'active' : ''}"disabled>{phase}
+    </button>
+    {/each}
+
     
     <div class="content-area">
-        <!-- Pass form state + active phase -->
-        <WorkflowPhase phase={activePhase} bind:formData={formData[activePhase]}/>
+        <WorkflowPhase phase={activePhase} onNext={goToNextPhase} />
     </div>
 </div>
 
-{#if showWarning}
-<div class="popup-overlay">
-    <div class="popup">
-        <h3>Incomplete Stage</h3>
-        <p>Please complete all required fields before moving to the next stage.</p>
-        <button on:click={closeWarning}>OK</button>
-    </div>
-</div>
-{/if}
 
 <style>
+
     .phases-container {
         border: 2px solid #e5e7eb;
         border-radius: 20px;
@@ -97,6 +41,11 @@
         background-color: #f3f4f6;
         border-bottom: 2px solid #e5e7eb;
     }
+    .tab-button:disabled {
+        cursor: default;
+        opacity: 0.6;
+    }
+
 
     .tab-button {
         flex: 1;
@@ -125,33 +74,9 @@
         padding: 40px;
         min-height: 400px;
     }
-
-    /* Popup */
-    .popup-overlay {
-        position: fixed;
-        inset: 0;
-        background: rgba(0,0,0,0.4);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .popup {
-        background: white;
-        padding: 2rem;
-        border-radius: 12px;
-        text-align: center;
-        max-width: 300px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-    }
-
-    .popup button {
-        margin-top: 1rem;
-        padding: 8px 16px;
-        border: none;
-        border-radius: 8px;
-        background: #7a1a1a;
-        color: white;
-        cursor: pointer;
+    :global(.workflow-phase-root) {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 40px;
     }
 </style>

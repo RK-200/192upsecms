@@ -1,6 +1,5 @@
 <script lang="ts">
- import { createEventDispatcher } from "svelte";
-  const dispatch = createEventDispatcher();
+
   let approvals = [
     {
       stage: "Approval Stage 1",
@@ -11,20 +10,6 @@
       items: []
     }
   ];
-   let showPopup = false;
-
-   function handleNext() {
-    const hasChecked = approvals.some(stage =>
-      stage.items.some(item => item.done)
-    );
-
-    if (!hasChecked) {
-      showPopup = true;
-      return;
-    }
-
-    dispatch("next");
-  }
 
   let fileUrl = "";
 </script>
@@ -84,19 +69,9 @@
 		</div>
 	</div>
 	<div class="pagenav">
-		<button class="back" on:click={() => dispatch("back")}>Back</button>
-		<button class="next" on:click={handleNext}>Next</button>
+		<button class ="back">back</button>
+		<button class ="next">next</button>
 	</div>
-	{#if showPopup}
-  <div class="popup-backdrop">
-    <div class="popup">
-      <h3>Incomplete Phase</h3>
-      <p>Please complete at least one approval.</p>
-      <button on:click={() => (showPopup = false)}>OK</button>
-    </div>
-  </div>
-{/if}
-
 </div>
 
 <style>

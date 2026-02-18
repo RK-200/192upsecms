@@ -1,7 +1,4 @@
 <script lang="ts">
-	import { createEventDispatcher } from "svelte";
-  const dispatch = createEventDispatcher();
-
   let milestones = [
     { text: "Milestone 1", done: false },
     { text: "Milestone 2", done: false },
@@ -53,30 +50,9 @@
 			<button class="pill-button">Confirm</button>
 		</div>
 	</div>
-	<div class="pagenav">
-  <button class="back" on:click={() => dispatch("back")}>Back</button>
-</div>
-
 </div>
 
 <style>
-	.pagenav {
-        grid-column: 1 / -1; /* Tells the div to span all columns */
-        display: flex;
-        justify-content: space-between; /* Aligns the button to the right */
-        margin-top: 20px; /* Optional: adds a little space above the button */
-    }
-	
-	.back {
-        background: #3b00ff; 
-        color: white;
-        border: none;
-        padding: 10px 35px;
-        border-radius: 8px;
-        font-weight: bold;
-        cursor: pointer;
-    }
-	
 	.phase-container {
 		display: grid;
 		grid-template-columns: 1fr 1fr;
@@ -85,7 +61,7 @@
 		font-family: sans-serif;
 	}
 
-	.h3 {
+	h3 {
 		font-size: 1.2rem;
 		margin-bottom: 25px;
 		font-weight: bold;

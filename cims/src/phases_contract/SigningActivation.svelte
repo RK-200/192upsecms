@@ -1,21 +1,10 @@
 <script lang="ts">
-	import { createEventDispatcher } from "svelte";
-  const dispatch = createEventDispatcher();
     let checklist = [
         { text: "Party 1", done: false },
         { text: "Party 2", done: false },
         { text: "Party 3", done: false }
 
     ];
-	let showPopup = false;
-
-  function handleNext() {
-    if (!checklist.every(i => i.done)) {
-      showPopup = true;
-      return;
-    }
-    dispatch("next");
-  }
  
 </script>
 
@@ -35,19 +24,9 @@
 		<button class="pill-button">Signature</button>
 	</div>
 	<div class="pagenav">
-  <button class="back" on:click={() => dispatch("back")}>Back</button>
-  <button class="next" on:click={handleNext}>Next</button>
-</div>
-{#if showPopup}
-	<div class="popup-backdrop">
-		<div class="popup">
-			<h3>Incomplete Phase</h3>
-			<p>Please fill up all required items before proceeding.</p>
-			<button on:click={() => (showPopup = false)}>OK</button>
-		</div>
+		<button class ="back">back</button>
+		<button class ="next">next</button>
 	</div>
-{/if}
-
 </div>
 
 <style>
@@ -78,7 +57,7 @@
         font-weight: bold;
         cursor: pointer;
     }
-
+	
 	.phase-container {
 		display: grid;
 		grid-template-columns: 1fr 1fr;
