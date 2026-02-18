@@ -5,7 +5,8 @@
     let {data} = $props();
     let {workflows} = data;
 
-    let workflowName = $state("New Workflow");
+    let activeWorkflow = workflows[0];
+    let activeWorkflowName = $state(activeWorkflow.name);
 
     //let workflowList = $state("New Workflow"); // temporarily not a list yet
     let isEditing = $state(false);
@@ -28,13 +29,22 @@
     //        saveName();
     //    }
     }
+
+    function switchActiveContract(newName: string) {
+        console.log(workflows);
+        activeWorkflow = workflows.find(item => item.name === newName);
+        activeWorkflowName = activeWorkflow.name;
+        console.log(activeWorkflow);
+    }
 </script>
 
 <div class="main-content">
     <div class="sidebar">
         <h2>Workflows</h2>
         {#each workflows as w}
-            <p>{w.name}</p>
+            <button onclick={() => switchActiveContract(w.name)}>
+                {w.name}
+            </button>
         {/each}
     </div>
 
@@ -45,7 +55,7 @@
                 <div class="edit-group">
                     <input 
                         type="text" 
-                        bind:value={workflowName} 
+                        bind:value={activeWorkflowName} 
                         onkeydown={handleKeydown}
                         class="title-input"
                         autofocus
@@ -57,7 +67,7 @@
                 </div>
             {:else}
                 <div class="view-group">
-                    <h1 class="page-title">{workflowName}</h1>
+                    <h1 class="page-title">{activeWorkflowName}</h1>
                     <button class="action-btn rename-btn" onclick={startEditing}>
                         <Pencil size={16} strokeWidth={2.5} />
                         <span>Rename</span>
@@ -65,7 +75,7 @@
                 </div>
             {/if}
         </div>
-
+    
         <WorkflowMainPanel/>
     </div>
 </div>
