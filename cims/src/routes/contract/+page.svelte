@@ -2,23 +2,17 @@
     import CreateContractMainPanel from "./CreateContractMainPanel.svelte";
     import { Pencil, Check } from 'lucide-svelte';
 
-    // Contract title
-    let contractName = $state("New Contract");
-
+    let workflowName = $state("New Workflow");
+    let workflowList = $state("New Workflow"); // temporarily not a list yet
     let isEditing = $state(false);
-
-    // Optional sidebar drafts list
-    let contracts = $state([
-        { name: "Employment Contract" },
-    ]);
 
     function startEditing() {
         isEditing = true;
     }
 
     function saveName() {
-        if (contractName.trim() !== "") {
-            contracts[0].name = contractName; // update first draft (optional logic)
+        if (workflowName.trim() !== "") {
+            workflowList = workflowName;
             isEditing = false;
         }
     }
@@ -31,35 +25,32 @@
 </script>
 
 <div class="main-content">
-    <!-- Sidebar -->
     <div class="sidebar">
-        <h2>Contracts</h2>
-        {#each contracts as c}
-            <p>{c.name}</p>
-        {/each}
+        <h2>Workflows</h2>
+        <p>{workflowList}</p>
     </div>
 
-    <!-- Main Area -->
     <div class="workflow-area">
+        
         <div class="workflow-header">
             {#if isEditing}
                 <div class="edit-group">
                     <input 
                         type="text" 
-                        bind:value={contractName} 
-                        on:keydown={handleKeydown}
+                        bind:value={workflowName} 
+                        onkeydown={handleKeydown}
                         class="title-input"
                         autofocus
                     />
-                    <button class="action-btn save-btn" on:click={saveName}>
+                    <button class="action-btn save-btn" onclick={saveName}>
                         <Check size={16} strokeWidth={3} />
                         <span>Save</span>
                     </button>
                 </div>
             {:else}
                 <div class="view-group">
-                    <h1 class="page-title">{contractName}</h1>
-                    <button class="action-btn rename-btn" on:click={startEditing}>
+                    <h1 class="page-title">{workflowName}</h1>
+                    <button class="action-btn rename-btn" onclick={startEditing}>
                         <Pencil size={16} strokeWidth={2.5} />
                         <span>Rename</span>
                     </button>
@@ -67,7 +58,6 @@
             {/if}
         </div>
 
-        <!-- Multi-stage contract creation -->
         <CreateContractMainPanel/>
     </div>
 </div>
@@ -79,7 +69,6 @@
         gap: 2rem;
         padding: 2rem;
     }
-
     .sidebar {
         border-right: 3px solid #e5e7eb;
     }
@@ -102,7 +91,6 @@
         margin: 0;
         color: #02461C;
     }
-
     .title-input {
         font-family: 'Poppins', sans-serif;
         font-size: 1.8rem;

@@ -1,159 +1,234 @@
 <script lang="ts">
-	import { createEventDispatcher } from "svelte";
-  const dispatch = createEventDispatcher();
-    let checklist = [
-        { text: "Party 1", done: false },
-        { text: "Party 2", done: false },
-        { text: "Party 3", done: false }
+	type Party = { name: string; done: boolean };
 
-    ];
-	let showPopup = false;
+	let parties: Party[] = [
+		{ name: "Party 1", done: false },
+		{ name: "Party 2", done: false }
+	];
 
-  function handleNext() {
-    if (!checklist.every(i => i.done)) {
-      showPopup = true;
-      return;
-    }
-    dispatch("next");
-  }
- 
+	function addParty() {
+		parties = [...parties, { name: "New Party", done: false }];
+	}
+
+	function removeParty(index: number) {
+		parties = parties.filter((_, i) => i !== index);
+	}
 </script>
 
 <div class="phase-container">
-	<!-- CHECKLIST -->
 	<div class="checklist-section">
-		<h3>Checklist</h3>
-		<div class="checklist-items">
-			{#each checklist as item}
-				<label class="custom-checkbox">
-					<input type="checkbox" bind:checked={item.done} />
-					<span class="checkmark"></span>
-					{item.text}
-				</label>
-			{/each}
-		</div>
-		<button class="pill-button">Signature</button>
-	</div>
-	<div class="pagenav">
-  <button class="back" on:click={() => dispatch("back")}>Back</button>
-  <button class="next" on:click={handleNext}>Next</button>
-</div>
-{#if showPopup}
-	<div class="popup-backdrop">
-		<div class="popup">
-			<h3>Incomplete Phase</h3>
-			<p>Please fill up all required items before proceeding.</p>
-			<button on:click={() => (showPopup = false)}>OK</button>
-		</div>
-	</div>
-{/if}
+		<h3>Signing & Activation</h3>
 
+		{#each parties as party, i}
+			<div class="checklist-row">
+				<label class="custom-checkbox">
+					<input type="checkbox" bind:checked={party.done} />
+					<span class="checkmark"></span>
+				</label>
+
+				<input
+					class="editable-text"
+					type="text"
+					bind:value={party.name}
+				/>
+
+				<button class="delete-btn" on:click={() => removeParty(i)}>
+					×
+				</button>
+			</div>
+		{/each}
+
+		<button class="add-button-field" on:click={addParty}>
+			+ Add Party
+		</button>
+	</div>
+
+	<!-- FILE UPLOAD -->
+	<div class="upload-section">
+		<div class="upload-header">
+			<h3>Add Default Files</h3>
+			<button class="close-x">×</button>
+		</div>
+
+		<div class="drop-zone">
+			<p>Drag & Drop or <span class="blue-text">Choose file</span> to upload</p>
+		</div>
+
+		<div class="divider"><span>OR</span></div>
+
+		<p class="input-label">Import from URL</p>
+		<div class="url-input-container">
+			<input type="text" placeholder="Add file URL" />
+			<button class="upload-text-button">Upload</button>
+		</div>
+
+		<div class="action-footer">
+			<button class="cancel-button">Cancel</button>
+			<button class="import-button">Import</button>
+		</div>
+	</div>
 </div>
 
 <style>
-	/* Add this new rule for the container */
-    .pagenav {
-        grid-column: 1 / -1; /* Tells the div to span all columns */
-        display: flex;
-        justify-content: space-between; /* Aligns the button to the right */
-        margin-top: 20px; /* Optional: adds a little space above the button */
-    }
 	
-	.back {
-        background: #3b00ff; 
-        color: white;
-        border: none;
-        padding: 10px 35px;
-        border-radius: 8px;
-        font-weight: bold;
-        cursor: pointer;
-    }
+	.upload-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: flex-start;
+	}
 
-    .next {
-        background: #3b00ff; 
-        color: white;
-        border: none;
-        padding: 10px 35px;
-        border-radius: 8px;
-        font-weight: bold;
-        cursor: pointer;
-    }
+	.close-x {
+		background: #f3f4f6;
+		border: none;
+		border-radius: 4px;
+		color: #999;
+		cursor: pointer;
+		padding: 2px 8px;
+	}
 
 	.phase-container {
 		display: grid;
 		grid-template-columns: 1fr 1fr;
 		gap: 60px;
-		background: white;
 		font-family: sans-serif;
 	}
 
 	h3 {
-		font-size: 1.2rem;
-		margin-bottom: 25px;
+		font-size: 1rem;
+		margin-bottom: 20px;
 		font-weight: bold;
-		color: #000;
 	}
 
-	.checklist-items {
+	.checklist-section {
 		display: flex;
 		flex-direction: column;
-		gap: 15px;
-		margin-bottom: 30px;
+		gap: 20px;
 	}
 
-	.custom-checkbox {
+	.checklist-row {
 		display: flex;
 		align-items: center;
-		cursor: pointer;
-		font-size: 1rem;
-		color: #374151;
-		user-select: none;
+		gap: 12px;
 	}
 
 	.custom-checkbox input {
-		display: none; 
+		display: none;
 	}
 
 	.checkmark {
-		height: 22px;
-		width: 22px;
+		height: 20px;
+		width: 20px;
 		border: 2px solid #333;
 		border-radius: 4px;
-		margin-right: 15px;
-		display: inline-block;
-		position: relative;
-		flex-shrink: 0;
+		cursor: pointer;
 	}
 
 	.custom-checkbox input:checked + .checkmark {
 		background-color: #333;
 	}
 
-	.custom-checkbox input:checked + .checkmark:after {
-		content: "";
-		position: absolute;
-		left: 7px;
-		top: 3px;
-		width: 5px;
-		height: 10px;
-		border: solid white;
-		border-width: 0 2px 2px 0;
-		transform: rotate(45deg);
+	.editable-text {
+		flex: 1;
+		border: 1px solid #e5e7eb;
+		border-radius: 6px;
+		padding: 6px 10px;
+		font-size: 0.95rem;
 	}
 
-	.pill-button {
+	.delete-btn {
+		background: #f3f4f6;
+		border: none;
+		border-radius: 6px;
+		padding: 4px 10px;
+		cursor: pointer;
+		font-weight: bold;
+		color: #555;
+	}
+
+	.add-button-field {
 		background-color: #7a1a1a;
 		color: white;
 		border: none;
-		padding: 10px 30px;
+		padding: 10px 24px;
 		border-radius: 50px;
 		font-weight: bold;
 		cursor: pointer;
-		box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-		transition: background-color 0.2s;
+		width: fit-content;
 	}
 
-	.pill-button:hover {
-		background-color: #5a1313;
+	.drop-zone {
+		border: 1px dashed #d1d5db;
+		border-radius: 12px;
+		padding: 30px;
+		text-align: center;
+		background: #f9fafb;
+	}
+
+	.blue-text {
+		color: #3b00ff;
+		font-weight: bold;
+		cursor: pointer;
+	}
+
+	.divider {
+		display: flex;
+		align-items: center;
+		margin: 15px 0;
+		color: #999;
+		font-size: 0.8rem;
+	}
+
+	.divider::before,
+	.divider::after {
+		content: '';
+		flex: 1;
+		border-bottom: 1px solid #e5e7eb;
+	}
+
+	.divider span {
+		padding: 0 10px;
+	}
+	.url-input-container {
+		display: flex;
+		background: #f9fafb;
+		border: 1px solid #e5e7eb;
+		border-radius: 8px;
+		padding: 8px 15px;
+		margin-bottom: 30px;
+	}
+
+	.url-input-container input {
+		flex: 1;
+		border: none;
+		background: transparent;
+		outline: none;
+	}
+	.upload-text-button {
+		background: transparent;
+		border: none;
+		color: #333;
+		cursor: pointer;
+		font-weight: 500;
+	}
+
+
+	.action-footer {
+		display: flex;
+		justify-content: center;
+		gap: 15px;
+	}
+
+	.cancel-button {
+		border: 1px solid #e5e7eb;
+		padding: 10px 30px;
+		border-radius: 8px;
+	}
+	.import-button {
+		background: #3b00ff;
+		color: white;
+		border: none;
+		padding: 10px 35px;
+		border-radius: 8px;
+		font-weight: bold;
 	}
 </style>

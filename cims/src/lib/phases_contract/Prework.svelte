@@ -1,9 +1,7 @@
 <script lang="ts">
-  import { createEventDispatcher } from "svelte";
+  type Item = { text: string; done: boolean };
 
-  const dispatch = createEventDispatcher();
-
-  let checklist = [
+  let checklist: Item[] = [
     { text: "Financial Obligations", done: false },
     { text: "Duration of the Agreement", done: false },
     { text: "Title", done: false },
@@ -16,17 +14,12 @@
     { text: "Payment Schedule", done: false }
   ];
 
-  let showPopup = false;
+  function addField() {
+    checklist = [...checklist, { text: "New Field", done: false }];
+  }
 
-  function handleNext() {
-    const allChecked = checklist.every(item => item.done);
-
-    if (!allChecked) {
-      showPopup = true;
-      return;
-    }
-
-    dispatch("next");
+  function removeField(index: number) {
+    checklist = checklist.filter((_, i) => i !== index);
   }
 </script>
 
@@ -34,16 +27,31 @@
 	<!-- CHECKLIST -->
 	<div class="checklist-section">
 		<h3>Set Default Requirements</h3>
+
 		<div class="checklist-items">
-			{#each checklist as item}
-				<label class="custom-checkbox">
-					<input type="checkbox" bind:checked={item.done} />
-					<span class="checkmark"></span>
-					{item.text}
-				</label>
+			{#each checklist as item, i}
+				<div class="checklist-row">
+					<label class="custom-checkbox">
+						<input type="checkbox" bind:checked={item.done} />
+						<span class="checkmark"></span>
+					</label>
+
+					<input
+						class="editable-text"
+						type="text"
+						bind:value={item.text}
+					/>
+
+					<button class="delete-btn" onclick={() => removeField(i)}>
+						×
+					</button>
+				</div>
 			{/each}
 		</div>
-		<button class="add-button-field">Add Field</button>
+
+		<div class="button-row">
+			<button class="add-button-field" onclick={addField}>+ Add Field</button>
+		</div>
 	</div>
 
 	<!-- FILE UPLOAD -->
@@ -72,71 +80,9 @@
 			<button class="import-button">Import</button>
 		</div>
 	</div>
-	<div class="pagenav">
-		<button class="next" on:click={handleNext}>Next</button>
-	</div>
-	{#if showPopup}
-	<div class="popup-backdrop">
-		<div class="popup">
-			<h3>Incomplete Phase</h3>
-			<p>Please fill up all required items before proceeding.</p>
-			<button on:click={() => (showPopup = false)}>OK</button>
-		</div>
-	</div>
-{/if}
 </div>
 
 <style>
-	.popup-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.4);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
-
-.popup {
-  background: white;
-  padding: 25px 30px;
-  border-radius: 12px;
-  width: 320px;
-  text-align: center;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-}
-
-.popup h3 {
-  margin-bottom: 10px;
-}
-
-.popup button {
-  margin-top: 15px;
-  background: #7a1a1a;
-  color: white;
-  border: none;
-  padding: 8px 20px;
-  border-radius: 8px;
-  cursor: pointer;
-}
-
-	/* Add this new rule for the container */
-    .pagenav {
-        grid-column: 1 / -1; /* Tells the div to span all columns */
-        display: flex;
-        justify-content: flex-end; /* Aligns the button to the right */
-        margin-top: 20px; /* Optional: adds a little space above the button */
-    }
-
-    .next {
-        background: #3b00ff; 
-        color: white;
-        border: none;
-        padding: 10px 35px;
-        border-radius: 8px;
-        font-weight: bold;
-        cursor: pointer;
-    }
 	.phase-container {
 		display: grid;
 		grid-template-columns: 1fr 1fr;
@@ -158,17 +104,14 @@
 		margin-bottom: 25px;
 	}
 
-	.custom-checkbox {
+	.checklist-row {
 		display: flex;
 		align-items: center;
-		cursor: pointer;
-		font-size: 1rem;
-		color: #374151;
-		user-select: none;
+		gap: 12px;
 	}
 
 	.custom-checkbox input {
-		display: none; 
+		display: none;
 	}
 
 	.checkmark {
@@ -176,9 +119,9 @@
 		width: 20px;
 		border: 2px solid #333;
 		border-radius: 4px;
-		margin-right: 12px;
 		display: inline-block;
 		position: relative;
+		cursor: pointer;
 	}
 
 	.custom-checkbox input:checked + .checkmark {
@@ -195,6 +138,33 @@
 		border: solid white;
 		border-width: 0 2px 2px 0;
 		transform: rotate(45deg);
+	}
+
+	.editable-text {
+		flex: 1;
+		border: 1px solid #e5e7eb;
+		border-radius: 6px;
+		padding: 6px 10px;
+		font-size: 0.95rem;
+	}
+
+	.delete-btn {
+		background: #f3f4f6;
+		border: none;
+		border-radius: 6px;
+		padding: 4px 10px;
+		cursor: pointer;
+		font-weight: bold;
+		color: #555;
+	}
+
+	.delete-btn:hover {
+		background: #e5e7eb;
+	}
+
+	.button-row {
+		display: flex;
+		justify-content: flex-start;
 	}
 
 	.add-button-field {
@@ -234,7 +204,6 @@
 
 	.blue-text {
 		color: #3b00ff;
-		text-decoration: none;
 		font-weight: bold;
 		cursor: pointer;
 	}

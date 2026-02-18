@@ -1,13 +1,9 @@
 <script lang="ts">
-    import WorkflowPhase from "../../lib/CreateContractPhase.svelte";
+    import CreateContractPhase from "../../lib/CreateContractPhase.svelte";
 
     let activePhase = $state("Prework");
     let phases = ["Prework", "Review and Approval", "Signing and Activation", "Postwork"];
-    
-    function goToNextPhase() {
-        const currentIndex = phases.indexOf(activePhase);
-        activePhase = phases[currentIndex + 1] ?? activePhase;
-    }
+
 
     function onHeaderClick(phase: string) {
         activePhase = phase;
@@ -15,14 +11,19 @@
 </script>
 
 <div class="phases-container">
-    {#each phases as phase}
-    <button class="tab-button {activePhase === phase ? 'active' : ''}"disabled>{phase}
-    </button>
-    {/each}
-
+    <div class="tab-bar">
+        {#each phases as phase}
+            <button 
+                class="tab-button {activePhase === phase ? 'active' : ''}" 
+                onclick={() => onHeaderClick(phase)}
+            >
+                {phase}
+            </button>
+        {/each}
+    </div>
     
     <div class="content-area">
-        <WorkflowPhase phase={activePhase} onNext={goToNextPhase} />
+        <CreateContractPhase phase={activePhase}/>
     </div>
 </div>
 
@@ -41,11 +42,6 @@
         background-color: #f3f4f6;
         border-bottom: 2px solid #e5e7eb;
     }
-    .tab-button:disabled {
-        cursor: default;
-        opacity: 0.6;
-    }
-
 
     .tab-button {
         flex: 1;
