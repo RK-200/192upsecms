@@ -6,7 +6,8 @@
     let {workflows} = data;
 
     let activeWorkflow = workflows[0];
-    let activeWorkflowName = $state(activeWorkflow.name);
+    let activeWorkflowId = activeWorkflow.id;
+    let displayedWorkflowName = $state(activeWorkflow.name);
 
     //let workflowList = $state("New Workflow"); // temporarily not a list yet
     let isEditing = $state(false);
@@ -15,25 +16,22 @@
         isEditing = true;
     }
 
-    // i disable this for now
     function saveName() {
-    //    if (workflowName.trim() !== "") {
-    //        workflowList = workflowName;
-    //        isEditing = false;
-    //    }
+         if (displayedWorkflowName.trim() !== "") {
+                //isEditing = false;
+            }
     }
 
-    // this too
     function handleKeydown(event: KeyboardEvent) {
-    //    if (event.key === 'Enter') {
-    //        saveName();
-    //    }
+        if (event.key === 'Enter') {
+            saveName()
+        }
     }
 
     function switchActiveContract(newName: string) {
         console.log(workflows);
         activeWorkflow = workflows.find(item => item.name === newName);
-        activeWorkflowName = activeWorkflow.name;
+        displayedWorkflowName = activeWorkflow.name;
         console.log(activeWorkflow);
     }
 </script>
@@ -53,21 +51,25 @@
         <div class="workflow-header">
             {#if isEditing}
                 <div class="edit-group">
-                    <input 
-                        type="text" 
-                        bind:value={activeWorkflowName} 
-                        onkeydown={handleKeydown}
-                        class="title-input"
-                        autofocus
-                    />
-                    <button class="action-btn save-btn" onclick={saveName}>
-                        <Check size={16} strokeWidth={3} />
-                        <span>Save</span>
-                    </button>
+                    <form method="POST" action="?/update_name">
+                        <input type="hidden" name="workflow_id" value={activeWorkflowId}/>
+                        <input 
+                            type="text" 
+                            name="new_name"
+                            bind:value={displayedWorkflowName} 
+                            onkeydown={handleKeydown}
+                            class="title-input"
+                            autofocus
+                        />
+                        <button class="action-btn save-btn" onclick={saveName}>
+                            <Check size={16} strokeWidth={3} />
+                            <span>Save</span>
+                        </button>
+                    </form>
                 </div>
             {:else}
                 <div class="view-group">
-                    <h1 class="page-title">{activeWorkflowName}</h1>
+                    <h1 class="page-title">{displayedWorkflowName}</h1>
                     <button class="action-btn rename-btn" onclick={startEditing}>
                         <Pencil size={16} strokeWidth={2.5} />
                         <span>Rename</span>
