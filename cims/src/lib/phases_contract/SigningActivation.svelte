@@ -13,6 +13,15 @@
 	function removeParty(index: number) {
 		parties = parties.filter((_, i) => i !== index);
 	}
+	import { createEventDispatcher } from "svelte";
+  const dispatch = createEventDispatcher();
+  function handleNext() {
+	//console.log("NEXT DISPATCHED");
+	dispatch("next");
+}
+function handleback(){
+	dispatch("back");
+}
 </script>
 
 <div class="phase-container">
@@ -66,6 +75,10 @@
 			<button class="cancel-button">Cancel</button>
 			<button class="import-button">Import</button>
 		</div>
+	</div>
+	<div class="pagenav">
+		<button class="back" on:click={handleback}>Return to <br/> Review and Approval</button>
+		<button class="next" on:click={handleNext}>Proceed to <br> Signing and Activation</button>
 	</div>
 </div>
 
@@ -231,4 +244,43 @@
 		border-radius: 8px;
 		font-weight: bold;
 	}
+	.next {
+  background-color: #7a1a1a; /* maroon */
+  color: white;
+  border: none;
+  flex: 0.14;
+  padding: 12px 40px;
+  border-radius: 9999px; /* fully rounded pill */
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+.back{
+	background-color: #7a1a1a; /* maroon */
+  color: white;
+  border: none;
+  flex: 0.14;
+  padding: 12px 40px;
+  border-radius: 9999px; /* fully rounded pill */
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.pagenav {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: space-between;;
+  margin-top: 30px;
+}
+
+.next:hover {
+  background-color: #5a1313;
+}
+
+.next:active {
+  transform: scale(0.97);
+}
 </style>

@@ -8,6 +8,20 @@
     function onHeaderClick(phase: string) {
         activePhase = phase;
     }
+
+    function onNext() {
+        const idx = phases.indexOf(activePhase);
+        if (idx < phases.length - 1) {
+            activePhase = phases[idx + 1];
+        }
+    }
+
+    function onBack() {
+        const idx = phases.indexOf(activePhase);
+        if (idx > 0) {
+            activePhase = phases[idx - 1];
+        }
+    }
 </script>
 
 <div class="phases-container">
@@ -21,9 +35,13 @@
             </button>
         {/each}
     </div>
-    
     <div class="content-area">
-        <CreateContractPhase phase={activePhase}/>
+        <!-- 🔹 PASS HANDLERS -->
+        <CreateContractPhase
+            phase={activePhase}
+            onNext={onNext}
+            onBack={onBack}
+        />
     </div>
 </div>
 

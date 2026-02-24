@@ -40,7 +40,7 @@
                         bind:value={workflowName} 
                         onkeydown={handleKeydown}
                         class="title-input"
-                        autofocus
+                        
                     />
                     <button class="action-btn save-btn" onclick={saveName}>
                         <Check size={16} strokeWidth={3} />

@@ -7,6 +7,12 @@
 
 	let terminationType = "";
 	let reason = "";
+	
+	import { createEventDispatcher } from "svelte";
+  const dispatch = createEventDispatcher();
+  function handleback() {
+	dispatch("back");
+}
 </script>
 
 <div class="phase-container">
@@ -52,6 +58,9 @@
 			<button class="pill-button">Confirm</button>
 		</div>
 	</div>
+	<div class="pagenav">
+		<button class="back" onclick={handleback}>Return to <br/> Signing and Activation</button>
+	</div>
 </div>
 
 <style>
@@ -63,7 +72,7 @@
 		font-family: sans-serif;
 	}
 
-	/* ===== CARD STYLE (MATCHES REVIEW APPROVAL) ===== */
+	/* ===== CARD STYLE ===== */
 	.section-card {
 		display: flex;
 		flex-direction: column;
@@ -183,4 +192,31 @@
 	.pill-button:hover {
 		background-color: #5a1313;
 	}
+
+	.back {
+  background-color: #7a1a1a; /* maroon */
+  color: white;
+  flex: 0.14;
+  border: none;
+  padding: 12px 40px;
+  border-radius: 9999px; /* fully rounded pill */
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+.pagenav {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: left;
+  margin-top: 30px;
+}
+
+.next:hover {
+  background-color: #5a1313;
+}
+
+.next:active {
+  transform: scale(0.97);
+}
 </style>

@@ -21,6 +21,14 @@
   function removeField(index: number) {
     checklist = checklist.filter((_, i) => i !== index);
   }
+
+  import { createEventDispatcher } from "svelte";
+  const dispatch = createEventDispatcher();
+  function handleNext() {
+	//console.log("NEXT DISPATCHED");
+	dispatch("next");
+}
+
 </script>
 
 <div class="phase-container">
@@ -79,6 +87,9 @@
 			<button class="cancel-button">Cancel</button>
 			<button class="import-button">Import</button>
 		</div>
+	</div>
+	<div class="pagenav">
+		<button class="next" onclick={handleNext}>Proceed to <br/> Approval and review</button>
 	</div>
 </div>
 
@@ -280,4 +291,30 @@
 		font-weight: bold;
 		cursor: pointer;
 	}
+	.next {
+		flex: 0.14;
+  background-color: #7a1a1a; /* maroon */
+  color: white;
+  border: none;
+  padding: 12px 40px;
+  border-radius: 9999px; /* fully rounded pill */
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+.pagenav {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: right;
+  margin-top: 30px;
+}
+
+.next:hover {
+  background-color: #5a1313;
+}
+
+.next:active {
+  transform: scale(0.97);
+}
 </style>
