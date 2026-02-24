@@ -27,7 +27,7 @@
 .phase {
     padding: 1rem;
 }
-.debug-box {
-    /*outline: 5px solid orange;*/
-}
+/*.debug-box {
+    outline: 5px solid orange;
+}*/
 </style>

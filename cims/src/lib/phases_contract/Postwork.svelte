@@ -212,11 +212,11 @@
   margin-top: 30px;
 }
 
-.next:hover {
+.back:hover {
   background-color: #5a1313;
 }
 
-.next:active {
+.back:active {
   transform: scale(0.97);
 }
 </style>
