@@ -29,21 +29,33 @@
     </div>
 </div>
 
-
 <style>
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+}
 
-    .phases-container {
-        border: 2px solid #e5e7eb;
-        border-radius: 20px;
-        overflow: hidden;
-        background-color: #fff;
-    }
+.modal-box {
+    background: white;
+    padding: 30px 40px;
+    border-radius: 12px;
+    text-align: center;
+}
 
-    .tab-bar {
-        display: flex;
-        background-color: #f3f4f6;
-        border-bottom: 2px solid #e5e7eb;
-    }
+.modal-box button {
+    margin-top: 15px;
+    padding: 8px 20px;
+    border: none;
+    background-color: #7a1a1a;
+    color: white;
+    border-radius: 6px;
+    cursor: pointer;
+}
 
     .tab {
         flex: 1;
