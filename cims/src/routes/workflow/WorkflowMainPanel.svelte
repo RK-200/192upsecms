@@ -1,29 +1,31 @@
 <script lang="ts">
     import WorkflowPhase from "../../lib/WorkflowPhase.svelte";
+    let { workflow }: { workflow: any } = $props();
 
     let activePhase = $state("Prework");
     let phases = ["Prework", "Review and Approval", "Signing and Activation", "Postwork"];
-
-
-    function onHeaderClick(phase: string) {
-        activePhase = phase;
-    }
 </script>
-
 <div class="phases-container">
     <div class="tab-bar">
         {#each phases as phase}
-            <button 
-                class="tab-button {activePhase === phase ? 'active' : ''}" 
-                onclick={() => onHeaderClick(phase)}
+            <div 
+                class="tab" 
+                class:active={activePhase === phase}
             >
                 {phase}
-            </button>
+            </div>
         {/each}
     </div>
     
     <div class="content-area">
-        <WorkflowPhase phase={activePhase}/>
+        <WorkflowPhase 
+            phase={activePhase}
+            onPhaseChange={(newPhase) => activePhase = newPhase}
+            preworkId={workflow?.prework} 
+            approvalId={workflow?.approval}
+            activationId={workflow?.activation}
+            postworkId={workflow?.postwork}
+        />
     </div>
 </div>
 
@@ -43,29 +45,23 @@
         border-bottom: 2px solid #e5e7eb;
     }
 
-    .tab-button {
+    .tab {
         flex: 1;
-        padding: 15px 10px;
-        border: none;
-        background: transparent;
-        font-size: 16px;
+        padding: 15px 20px;
         font-weight: bold;
         color: #7a1a1a; 
-        cursor: pointer;
+        text-align: center;
         border-right: 1px solid #e5e7eb;
-        transition: all 0.2s;
+        transition: background-color 0.3s ease, color 0.3s ease; 
     }
-
-    .tab-button:last-child {
+    .tab:last-child {
         border-right: none;
     }
 
-    .tab-button.active {
+    .tab.active {
         background-color: #7a1a1a; 
-        color: white;
-        box-shadow: inset 0 -4px 0 rgba(0,0,0,0.1);
+        color: white;              
     }
-
     .content-area {
         padding: 40px;
         min-height: 400px;

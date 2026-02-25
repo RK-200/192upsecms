@@ -5,8 +5,8 @@
     let {data} = $props();
     let {workflows} = data;
 
-    let activeWorkflow = workflows[0];
-    let activeWorkflowId = activeWorkflow.id;
+    let activeWorkflow = $state(workflows[0]); 
+    let activeWorkflowId = $derived(activeWorkflow.id);
     let displayedWorkflowName = $state(activeWorkflow.name);
 
     //let workflowList = $state("New Workflow"); // temporarily not a list yet
@@ -30,7 +30,7 @@
 
     function switchActiveContract(newName: string) {
         console.log(workflows);
-        activeWorkflow = workflows.find(item => item.name === newName);
+        activeWorkflow = workflows.find(item => item.name === newName) || workflows[0];
         displayedWorkflowName = activeWorkflow.name;
         console.log(activeWorkflow);
     }
@@ -78,7 +78,7 @@
             {/if}
         </div>
     
-        <WorkflowMainPanel/>
+        <WorkflowMainPanel workflow={activeWorkflow} />
     </div>
 </div>
 

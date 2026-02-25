@@ -4,20 +4,56 @@
     import SigningActivation from "$lib/phases_workflow/SigningActivation.svelte";
     import Postwork from "$lib/phases_workflow/Postwork.svelte";
 
-    export let phase: string;
+    interface Props {
+        phase: string;
+        onPhaseChange: (newPhase: string) => void; 
+        preworkId?: any; 
+        approvalId?: any;
+        activationId?: any;
+        postworkId?: any;
+    }
+
+    let {
+        phase,
+        onPhaseChange,
+        preworkId,
+        approvalId,
+        activationId,
+        postworkId
+    }: Props = $props(); 
+
+
+    function changePhase(newPhase: string) {
+    onPhaseChange(newPhase); 
+    }
 </script>
 
 <div class="phase debug-box">
     <h2 style="text-align:center">{phase}</h2>
 
     {#if phase === "Prework"}
-        <Prework />
+     {#key preworkId} 
+        <Prework {preworkId} 
+        on:next={() => changePhase("Review and Approval")} 
+        />
+     {/key}
     {:else if phase === "Review and Approval"}
-        <ReviewApproval />
+        <ReviewApproval
+        {approvalId}
+        on:back={() => changePhase("Prework")} 
+        on:next={() => changePhase("Signing and Activation")}
+        />
     {:else if phase === "Signing and Activation"}
-        <SigningActivation />
+        <SigningActivation 
+        {activationId}
+        on:back={() => changePhase("Review and Approval")} 
+        on:next={() => changePhase("Postwork")}
+        />
     {:else if phase === "Postwork"}
-        <Postwork />
+        <Postwork 
+        {postworkId}
+        on:back={() => changePhase("Signing and Activation")} 
+        />
     {/if}
 </div>
 
