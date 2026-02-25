@@ -24,9 +24,29 @@
 
   import { createEventDispatcher } from "svelte";
   const dispatch = createEventDispatcher();
-  function handleNext() {
-	//console.log("NEXT DISPATCHED");
-	dispatch("next");
+  let showError = false;
+let errorMessage = "";
+
+function handleNext() {
+  const hasEmptyField = checklist.some(
+    item => item.text.trim() === ""
+  );
+
+  if (hasEmptyField) {
+    errorMessage = "Checklist fields cannot be empty. Please fill in or remove empty fields.";
+    showError = true;
+    return;
+  }
+
+  const hasCheckedItem = checklist.some(item => item.done);
+
+  if (!hasCheckedItem) {
+    errorMessage = "Please check at least one requirement before proceeding.";
+    showError = true;
+    return;
+  }
+
+  dispatch("next");
 }
 
 </script>
@@ -91,6 +111,18 @@
 	<div class="pagenav">
 		<button class="next" onclick={handleNext}>Proceed to <br/> Approval and review</button>
 	</div>
+
+{#if showError}
+  <div class="modal-backdrop">
+    <div class="modal">
+      <h4>Action Required</h4>
+      <p>{errorMessage}</p>
+      <button class="modal-btn" onclick={() => showError = false}>
+        OK
+      </button>
+    </div>
+  </div>
+{/if}
 </div>
 
 <style>
@@ -316,5 +348,44 @@
 
 .next:active {
   transform: scale(0.97);
+}
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal {
+  background: white;
+  padding: 25px 30px;
+  border-radius: 12px;
+  max-width: 360px;
+  text-align: center;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
+
+.modal h4 {
+  margin-bottom: 10px;
+  font-size: 1.1rem;
+}
+
+.modal p {
+  font-size: 0.95rem;
+  color: #555;
+  margin-bottom: 20px;
+}
+
+.modal-btn {
+  background: #7a1a1a;
+  color: white;
+  border: none;
+  padding: 8px 28px;
+  border-radius: 9999px;
+  font-weight: bold;
+  cursor: pointer;
 }
 </style>
