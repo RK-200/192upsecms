@@ -1,4 +1,7 @@
 <script lang="ts">
+import { createEventDispatcher } from "svelte";
+  const dispatch = createEventDispatcher();
+
   let approvals = [
     {
       stage: "Approval Stage 1",

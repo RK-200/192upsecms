@@ -1,4 +1,8 @@
 <script lang="ts">
+
+import { createEventDispatcher } from "svelte";
+  const dispatch = createEventDispatcher();
+
   let checklist = [
     { text: "Financial Obligations", done: false },
     { text: "Duration of the Agreement", done: false },
@@ -11,6 +15,11 @@
     { text: "Roles and Responsibilities", done: false },
     { text: "Payment Schedule", done: false }
   ];
+
+   $: {
+    const checkedCount = checklist.filter(item => item.done).length;
+    dispatch("progress", { phase: "Prework", checkedCount });
+  }
 </script>
 
 <div class="phase-container">

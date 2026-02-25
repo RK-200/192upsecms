@@ -1,4 +1,7 @@
 <script lang="ts">
+import { createEventDispatcher } from "svelte";
+  const dispatch = createEventDispatcher();
+
     let checklist = [
         { text: "Party 1", done: false },
         { text: "Party 2", done: false },
@@ -6,7 +9,10 @@
 
     ];
     let notes = "";
-
+	$: {
+        const checkedCount = checklist.filter(item => item.done).length;
+        dispatch("progress", { phase: "Signing and Activation", checkedCount });
+    }
 </script>
 
 <div class="phase-container">
