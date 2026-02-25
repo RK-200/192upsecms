@@ -1,18 +1,49 @@
 import { supabase } from '$lib/supabaseInit';
 
-export async function load() {
-	const { data, error } = await supabase
-		.from('contracts')
-		.select('*');
+export async function load({ url }) {
+	const year = url.searchParams.get('year') || 'All';
+    const type = url.searchParams.get('type') || 'All';
+    const status = url.searchParams.get('status') || 'All';
+    const search = url.searchParams.get('search') || '';
+	const sort = url.searchParams.get('sort') || 'title-asc';
 
-	//console.log(data);
+	let query = supabase.from('contracts').select('*');
+
+	if (year !== 'All') {
+        const startDate = `${year}-01-01T00:00:00`;
+        const endDate = `${year}-12-31T23:59:59`;
+        
+        query = query.gte('created_at', startDate)
+                     .lte('created_at', endDate);
+    }
+	
+	if (type !== 'All') {
+		query = query.filter('type', 'eq', type);
+	}
+
+	if (status !== 'All') {
+		query = query.filter('status', 'eq', status);
+	}
+
+	if (search !== '') {
+		query = query.ilike('title', `%${search}%`);
+	}
+
+	if (sort) {
+		const [sortKey, sortOrder] = sort.split('-');
+		query = query.order(sortKey, { ascending: sortOrder === 'asc' });
+	}
+	
+
+	const { data, error } = await query;
 
 	if (error) {
 		console.error(error);
-		return { contracts: [] };
+		return { contracts: [], filters: { year, type, status }};
 	}
 
 	return {
-		contracts: data
+		contracts: data,
+		filters: { year, type, status, search }
 	};
 }
