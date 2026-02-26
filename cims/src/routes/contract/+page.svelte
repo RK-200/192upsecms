@@ -2,8 +2,8 @@
     import CreateContractMainPanel from "./CreateContractMainPanel.svelte";
     import { Pencil, Check } from 'lucide-svelte';
 
-    let workflowName = $state("New Workflow");
-    let workflowList = $state("New Workflow"); // temporarily not a list yet
+    let ContractName = $state("Contract Name");
+    let Contractlist = $state("Contract Name"); // temporarily not a list yet
     let isEditing = $state(false);
 
     function startEditing() {
@@ -11,8 +11,9 @@
     }
 
     function saveName() {
-        if (workflowName.trim() !== "") {
-            workflowList = workflowName;
+        if (ContractName.trim() !== "") {
+            Contractlist
+     = ContractName;
             isEditing = false;
         }
     }
@@ -26,8 +27,9 @@
 
 <div class="main-content">
     <div class="sidebar">
-        <h2>Workflows</h2>
-        <p>{workflowList}</p>
+        <h2>Create Contracts</h2>
+        <p>{Contractlist
+    }</p>
     </div>
 
     <div class="workflow-area">
@@ -37,7 +39,7 @@
                 <div class="edit-group">
                     <input 
                         type="text" 
-                        bind:value={workflowName} 
+                        bind:value={ContractName} 
                         onkeydown={handleKeydown}
                         class="title-input"
                         
@@ -49,7 +51,7 @@
                 </div>
             {:else}
                 <div class="view-group">
-                    <h1 class="page-title">{workflowName}</h1>
+                    <h1 class="page-title">{ContractName}</h1>
                     <button class="action-btn rename-btn" onclick={startEditing}>
                         <Pencil size={16} strokeWidth={2.5} />
                         <span>Rename</span>
