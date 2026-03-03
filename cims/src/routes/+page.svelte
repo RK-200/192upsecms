@@ -1,18 +1,59 @@
+<script lang="ts">
+	import { enhance } from '$app/forms'
+	import type { ActionData, SubmitFunction } from './$types.js'
+	interface Props {
+		form: ActionData
+	}
+	let { form }: Props = $props()
+	let loading = $state(false)
+	const handleSubmit: SubmitFunction = () => {
+		loading = true
+		return async ({ update }) => {
+			update()
+			loading = false
+		}
+	}
+</script>
+
 <div class="login-container">
 	<h1 class="title">CIMS Contract Manager</h1>
 
-	<form class="login-form">
+	<form class="login-form" method="POST" use:enhance={handleSubmit}>
 		<div class="input-group">
-			<label for="username">Username</label>
-			<input type="text" id="username" placeholder="Your username here" />
+			<label for="email">Email address</label>
+			<input 
+				type="email" 
+				id="email" 
+				name="email"
+				placeholder="Your email here"
+				value={form?.email ?? ''} 
+			/>
 		</div>
 
-		<div class="input-group">
+		<!--<div class="input-group">
 			<label for="password">Password</label>
 			<input type="password" id="password" placeholder="Your password here" />
+		</div>-->
+
+		<!--<a href="/" >Login</a>-->
+		
+		<div>
+			<button class="login-button">
+				{ loading ? 'Loading' : 'Send magic link' }
+			</button>
 		</div>
 
-		<a href="/" class="login-button">Login</a>
+		{#if form?.message !== undefined}
+		<div class="success {form?.success ? '' : 'fail'}">
+			{form?.message}
+		</div>
+		{/if}
+
+		{#if form?.errors?.email}
+		<span class="flex items-center text-sm error">
+			{form?.errors?.email}
+		</span>
+		{/if}
 	</form>
 </div>
 
