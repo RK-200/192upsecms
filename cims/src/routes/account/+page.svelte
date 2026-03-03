@@ -12,6 +12,8 @@
 
 	let isEditing: boolean = $state(false)
 
+	let access_levels = ["Workflow Manager", "Contract Manager", "Contract Viewer"];
+
 	const handleSubmit: SubmitFunction = () => {
 		loading = true
 		return async () => {
@@ -51,8 +53,8 @@
 			<input id="email" type="text" value={session.user.email} disabled />
 		</div>
 		<div>
-			<label for="access-level">Access Level</label>
-			<input id="access-level" type="text" value={access_level} disabled />
+			<label for="access_level">Access Level</label>
+			<input id="access_level" name="access_level" type="text" value={form?.access_level ?? access_level} disabled={access_level !== "Workflow Manager" || !isEditing} />
 		</div>
 		<div>
 			<label for="fullName">Full Name</label>
@@ -79,11 +81,64 @@
 	{#if access_level === "Workflow Manager"}
 		<div>
 			<h1>List of Registered Users:</h1>
-			{#each users as user}
-				<div>
-					<p>{user.full_name} ({user.username}) - {user.access_level}</p>
-				</div>
-			{/each}
+			<table>
+				<thead>
+					<tr>
+						<th>Full Name</th>
+						<th>Username</th>
+						<th>Access Level</th>
+					</tr>
+				</thead>
+				<tbody>
+					{#each users as user}
+						<tr>
+							<td>{user.full_name}</td>
+							<td>{user.username}</td>
+							<td>
+								<form
+									class="form-widget"
+									method="post"
+									action="?/update_access_level"
+									use:enhance={handleSubmit}
+								>
+									<input type="hidden" name="id" value={user.id} />
+									<select name="access_level" bind:value={user.access_level}>
+										{#each access_levels as level}
+											<option value={level}>{level}</option>
+										{/each}
+									</select>
+										<input
+											type="submit"
+											value={loading ? 'Updating...' : 'Update'}
+											disabled={loading}
+										/>
+								</form>
+							</td>
+						</tr>
+					{/each}
+				</tbody>
+			</table>
 		</div>
 	{/if}
 </div>
+
+<style>
+	table {
+		table-layout: fixed;
+		width: 90%;
+		margin: 10px auto;
+		border-collapse: collapse;
+		border-top: 1px solid #999999;
+		border-bottom: 1px solid #999999;
+	}
+
+	th,
+	td {
+		vertical-align: top;
+		padding: 0.3em;
+	}
+
+	tbody tr:nth-child(odd) {
+		background-color: #eeeeee;
+	}
+</style>

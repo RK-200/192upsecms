@@ -39,7 +39,7 @@
 		
 		<div>
 			<button class="login-button">
-				{ loading ? 'Loading' : 'Send magic link' }
+				{ loading ? 'Sending magic link...' : 'Send magic link' }
 			</button>
 		</div>
 
