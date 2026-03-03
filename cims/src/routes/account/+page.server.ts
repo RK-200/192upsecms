@@ -7,10 +7,14 @@ export const load: PageServerLoad = async ({ locals: { supabase, safeGetSession 
   }
   const { data: profile } = await supabase
     .from('profiles')
-    .select(`username, full_name, website, avatar_url`)
+    .select(`username, full_name, access_level`)
     .eq('id', session.user.id)
     .single()
-  return { session, profile }
+
+  const {data: users} = await supabase
+    .from('profiles')
+    .select(`id, username, full_name, access_level`)
+  return { session, profile, users }
 }
 export const actions: Actions = {
   update: async ({ request, locals: { supabase, safeGetSession } }) => {
