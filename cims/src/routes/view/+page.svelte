@@ -1,4 +1,16 @@
 <script lang="ts">
+    import {
+        blur,
+        crossfade,
+        draw,
+        fade,
+        fly,
+        scale,
+        slide
+    } from 'svelte/transition';
+    import { 
+        flip
+    } from 'svelte/animate';
     import { goto, invalidateAll } from '$app/navigation';
     import { page } from '$app/stores';
     import { SquareChevronUp, SquareChevronDown } from 'lucide-svelte';
@@ -128,8 +140,8 @@
             </tr>
         </thead>
         <tbody>
-            {#each contracts as contract}
-                <tr>
+            {#each contracts as contract (contract.id)}
+                <tr in:fade animate:flip={{duration: 450}}>
                     <td>{contract.title}</td>
                     <td>{new Date(contract.created_at).toLocaleDateString()}</td>
                     <td>{contract.type}</td>
@@ -195,9 +207,20 @@
         padding: 2rem;
     }
 
-    table { width: 100%; border-collapse: collapse; }
+    table { width: 100%; 
+            border-collapse: collapse;
+            table-layout: fixed;
+     }
     th { text-align: left; border-bottom: 2px solid #eee; padding: 12px; }
-    td { padding: 12px; border-bottom: 1px solid #eee; }
+    td { padding: 12px; border-bottom: 1px solid #eee;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap; }
+    
+    th:nth-child(1), td:nth-child(1) { width: 45%; }
+    th:nth-child(2), td:nth-child(2) { width: 15%; }
+    th:nth-child(3), td:nth-child(3) { width: 25%; }
+    th:nth-child(4), td:nth-child(4) { width: 25%; }
 
     .status-dropdown {
         border: none;

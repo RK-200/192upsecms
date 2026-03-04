@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { fly } from 'svelte/transition';
 	import { createEventDispatcher } from "svelte";
 	import { supabase } from "$lib/supabaseInit";
 
@@ -109,7 +110,7 @@
 
 			<div class="checklist-items">
 				{#each milestones as m, i}
-					<div class="milestone-row">
+					<div class="milestone-row" transition:fly={{ x: -20, duration: 200 }}>
 						<label class="custom-checkbox">
 							<input type="checkbox" bind:checked={m.done} />
 							<span class="checkmark"></span>

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { fly } from 'svelte/transition';
 	import { createEventDispatcher } from "svelte";
 	import { supabase } from "$lib/supabaseInit";
 
@@ -124,7 +125,7 @@
 			<p>Loading approval checklist...</p>
 		{:else}
 			{#each stages as stage, si}
-				<div class="stage-box">
+				<div class="stage-box" transition:fly={{ x: -20, duration: 200 }}>
 					<div class="checklist-row">
 						<input
 							class="editable-text"
@@ -139,7 +140,7 @@
 
 					<div class="nested-items">
 						{#each stage.items as item, ii}
-							<div class="checklist-row">
+							<div class="checklist-row" transition:fly={{ x: -20, duration: 200 }}>
 								<label class="custom-checkbox">
 									<input type="checkbox" bind:checked={item.done} />
 									<span class="checkmark"></span>

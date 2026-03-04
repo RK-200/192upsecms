@@ -1,5 +1,14 @@
 <script lang="ts">
   import { createEventDispatcher, onMount } from "svelte";
+  import {
+        blur,
+        crossfade,
+        draw,
+        fade,
+        fly,
+        scale,
+        slide
+    } from 'svelte/transition';
   import { supabase } from "$lib/supabaseInit"; 
 
   export let preworkId: string; 
@@ -162,7 +171,7 @@
 
 		<div class="checklist-items">
 			{#each checklist as item, i}
-				<div class="checklist-row">
+				<div class="checklist-row" transition:fly={{ x: -20, duration: 200 }}>
 					<label class="custom-checkbox">
 						<input type="checkbox" bind:checked={item.done} />
 						<span class="checkmark"></span>
