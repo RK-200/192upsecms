@@ -1,48 +1,41 @@
 <script lang="ts">
     import CreateContractPhase from "../../lib/CreateContractPhase.svelte";
 
+    let {contract}: {contract: any } = $props();
     let activePhase = $state("Prework");
-    let phases = ["Prework", "Review and Approval", "Signing and Activation", "Postwork"];
 
+    let phases = [
+        "Prework",
+        "Review and Approval",
+        "Signing and Activation",
+        "Postwork"
 
-    function onHeaderClick(phase: string) {
-        activePhase = phase;
-    }
-
-    function onNext() {
-        const idx = phases.indexOf(activePhase);
-        if (idx < phases.length - 1) {
-            activePhase = phases[idx + 1];
-        }
-    }
-
-    function onBack() {
-        const idx = phases.indexOf(activePhase);
-        if (idx > 0) {
-            activePhase = phases[idx - 1];
-        }
-    }
+    ];
 </script>
 
 <div class="phases-container">
     <div class="tab-bar">
         {#each phases as phase}
             <button 
-                class="tab-button {activePhase === phase ? 'active' : ''}" 
-                onclick={() => onHeaderClick(phase)}
+                class="tab " 
+                class:active={activePhase === phase}
             >
                 {phase}
             </button>
         {/each}
     </div>
     <div class="content-area">
-        <!-- 🔹 PASS HANDLERS -->
         <CreateContractPhase
             phase={activePhase}
-            onNext={onNext}
-            onBack={onBack}
+            onPhaseChange={(p) => activePhase = p}
+
+            preworkId={contract?.prework}
+            approvalId={contract?.approval}
+            activationId={contract?.activation}
+            postworkId={contract?.postwork}
         />
     </div>
+
 </div>
 
 
@@ -61,7 +54,7 @@
         border-bottom: 2px solid #e5e7eb;
     }
 
-    .tab-button {
+    .tab {
         flex: 1;
         padding: 15px 10px;
         border: none;
@@ -74,11 +67,11 @@
         transition: all 0.2s;
     }
 
-    .tab-button:last-child {
+    .tab:last-child {
         border-right: none;
     }
 
-    .tab-button.active {
+    .tab.active {
         background-color: #7a1a1a; 
         color: white;
         box-shadow: inset 0 -4px 0 rgba(0,0,0,0.1);

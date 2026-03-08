@@ -1,7 +1,12 @@
 <script lang="ts">
 	type ApprovalItem = { text: string; done: boolean };
 	type Stage = { name: string; items: ApprovalItem[] };
+	export let approvalId: string;
 
+	let showError = false;
+	let errorMessage = "";
+	let showConfirmModal = false;
+	
 	let stages: Stage[] = [
 		{
 			name: "Approval Stage 1",
@@ -39,9 +44,43 @@
 	dispatch("next");
 }
 function handleback(){
+	showConfirmModal = false;
 	dispatch("back");
 }
+function validateBeforeConfirm() {
 
+    // check if no stages exist
+    if (stages.length === 0) {
+        errorMessage = "Action Required: Please add at least one review stage.";
+        showError = true;
+        return;
+    }
+
+    // check empty stage names
+    const hasEmptyStage = stages.some(
+        stage => stage.name.trim() === ""
+    );
+
+    if (hasEmptyStage) {
+        errorMessage = "Stage names cannot be empty.";
+        showError = true;
+        return;
+    }
+
+    // check empty approval items
+    const hasEmptyItems = stages.some(
+        stage => stage.items.length === 0 ||
+        stage.items.some(item => item.text.trim() === "")
+    );
+
+    if (hasEmptyItems) {
+        errorMessage = "Each stage must contain at least one approval item.";
+        showError = true;
+        return;
+    }
+
+    showConfirmModal = true;
+}
 
 </script>
 
@@ -128,8 +167,50 @@ function handleback(){
 	</div>
 	<div class="pagenav">
 		<button class="back" on:click={handleback}>Return to <br/> Prework</button>
-		<button class="next" on:click={handleNext}>Proceed to <br> Signing and Activation</button>
+		<button class="next" on:click={validateBeforeConfirm}>Proceed to <br> Signing and Activation</button>
 	</div>
+
+{#if showError}
+<div class="modal-backdrop">
+    <div class="modal">
+        <h4>Action Required</h4>
+        <p>{errorMessage}</p>
+
+        <button class="modal-btn" on:click={() => showError = false}>
+            OK
+        </button>
+    </div>
+</div>
+{/if}
+{#if showConfirmModal}
+<div class="modal-overlay">
+    <div class="modal-content">
+        <h3>Confirmation</h3>
+
+        <p>
+            Are you sure you want to proceed to the Signing and Activation phase?
+        </p>
+
+        <div class="modal-actions">
+
+            <button
+                class="cancel-button"
+                on:click={() => showConfirmModal = false}
+            >
+                Cancel
+            </button>
+
+            <button
+                class="import-button"
+                on:click={handleNext}
+            >
+                Confirm & Proceed
+            </button>
+
+        </div>
+    </div>
+</div>
+{/if}
 </div>
 
 <style>
@@ -376,5 +457,87 @@ function handleback(){
 
 .next:active {
   transform: scale(0.97);
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal {
+  background: white;
+  padding: 25px 30px;
+  border-radius: 12px;
+  max-width: 360px;
+  text-align: center;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
+
+.modal h4 {
+  margin-bottom: 10px;
+  font-size: 1.1rem;
+}
+
+.modal p {
+  font-size: 0.95rem;
+  color: #555;
+  margin-bottom: 20px;
+}
+
+.modal-btn {
+  background: #7a1a1a;
+  color: white;
+  border: none;
+  padding: 8px 28px;
+  border-radius: 9999px;
+  font-weight: bold;
+  cursor: pointer;
+}
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0,0,0,0.5);
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    z-index: 1000;
+}
+
+.modal-content {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    width: 400px;
+
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    text-align: center;
+}
+
+.modal-content h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: #7a1a1a;
+}
+
+.modal-content p {
+    color: #4b5563;
+    margin-bottom: 25px;
+    line-height: 1.5;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
 }
 </style>

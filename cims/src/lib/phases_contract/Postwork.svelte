@@ -1,4 +1,5 @@
 <script lang="ts">
+export let postworkId: string;
 	let milestones = [
 		{ text: "Milestone 1", done: false },
 		{ text: "Milestone 2", done: false },
@@ -12,26 +13,43 @@
   const dispatch = createEventDispatcher();
   function handleback() {
 	dispatch("back");
+  }
+	function addMilestone() {
+    milestones = [...milestones, { text: `Milestone ${milestones.length + 1}`, done: false }];
+}
+
+function removeMilestone(index: number) {
+    milestones = milestones.filter((_, i) => i !== index);
 }
 </script>
 
 <div class="phase-container">
 	<!-- OUTPUT MILESTONES -->
 	<div class="section-card">
-		<h3>Output Milestones</h3>
+    <h3>Output Milestones</h3>
 
-		<div class="checklist-items">
-			{#each milestones as m}
-				<label class="custom-checkbox">
-					<input type="checkbox" bind:checked={m.done} />
-					<span class="checkmark"></span>
-					<span class="checkbox-text">{m.text}</span>
-				</label>
-			{/each}
-		</div>
+    <div class="checklist-items">
+        {#each milestones as m, i}
+            <div class="milestone-row">
+                <label class="custom-checkbox">
+                    <input type="checkbox" bind:checked={m.done} />
+                    <span class="checkmark"></span>
+                </label>
 
-		<button class="pill-button">+ Add Milestone</button>
-	</div>
+                <input
+                    type="text"
+                    class="editable-text"
+                    bind:value={m.text}
+                    placeholder="Enter milestone"
+                />
+
+                <button class="delete-btn" onclick={() => removeMilestone(i)}>×</button>
+            </div>
+        {/each}
+    </div>
+
+    <button class="pill-button" onclick={addMilestone}>+ Add Milestone</button>
+</div>
 
 	<!-- CONTRACT TERMINATION -->
 	<div class="section-card termination-area">
@@ -136,9 +154,33 @@
 		transform: rotate(45deg);
 	}
 
-	.checkbox-text {
-		line-height: 1.4;
-	}
+	.milestone-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.editable-text {
+    flex: 1;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-size: 0.95rem;
+}
+
+.delete-btn {
+    background: #f3f4f6;
+    border: none;
+    border-radius: 6px;
+    padding: 4px 10px;
+    cursor: pointer;
+    font-weight: bold;
+    color: #555;
+}
+
+.delete-btn:hover {
+    background: #e5e7eb;
+}
 
 	/* ===== FORM ===== */
 	.form-group {

@@ -1,5 +1,10 @@
 <script lang="ts">
 	type Party = { name: string; done: boolean };
+	
+	let showError = false;
+	let errorMessage = "";
+	let showConfirmModal = false;
+	export let activationId: string;
 
 	let parties: Party[] = [
 		{ name: "Party 1", done: false },
@@ -16,12 +21,38 @@
 	import { createEventDispatcher } from "svelte";
   const dispatch = createEventDispatcher();
   function handleNext() {
+	showConfirmModal = false;
 	//console.log("NEXT DISPATCHED");
 	dispatch("next");
-}
+  }
+
 function handleback(){
 	dispatch("back");
 }
+
+function validateBeforeConfirm() {
+
+    // no parties
+    if (parties.length === 0) {
+        errorMessage = "Action Required: Please add at least one signing party.";
+        showError = true;
+        return;
+    }
+
+    // empty party names
+    const hasEmptyParty = parties.some(
+        party => party.name.trim() === ""
+    );
+
+    if (hasEmptyParty) {
+        errorMessage = "Party names cannot be empty.";
+        showError = true;
+        return;
+    }
+
+    showConfirmModal = true;
+}
+
 </script>
 
 <div class="phase-container">
@@ -78,9 +109,51 @@ function handleback(){
 	</div>
 	<div class="pagenav">
 		<button class="back" on:click={handleback}>Return to <br/> Review and Approval</button>
-		<button class="next" on:click={handleNext}>Proceed to <br> Signing and Activation</button>
+		<button class="next" on:click={validateBeforeConfirm}>Proceed to <br> Signing and Activation</button>
 	</div>
 </div>
+{#if showError}
+<div class="modal-backdrop">
+    <div class="modal">
+        <h4>Action Required</h4>
+        <p>{errorMessage}</p>
+
+        <button class="modal-btn" on:click={() => showError = false}>
+            OK
+        </button>
+    </div>
+</div>
+{/if}
+{#if showConfirmModal}
+<div class="modal-overlay">
+    <div class="modal-content">
+        <h3>Confirmation</h3>
+
+        <p>
+            Are you sure you want to proceed to the Signing and Activation phase?
+        </p>
+
+        <div class="modal-actions">
+
+            <button
+                class="cancel-button"
+                on:click={() => showConfirmModal = false}
+            >
+                Cancel
+            </button>
+
+            <button
+                class="import-button"
+                on:click={handleNext}
+            >
+                Confirm & Proceed
+            </button>
+
+        </div>
+    </div>
+</div>
+{/if}
+
 
 <style>
 	
@@ -283,4 +356,97 @@ function handleback(){
 .next:active {
   transform: scale(0.97);
 }
+
+.modal-backdrop{
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index:1000;
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal {
+  background: white;
+  padding: 25px 30px;
+  border-radius: 12px;
+  max-width: 360px;
+  text-align: center;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
+
+.modal h4 {
+  margin-bottom: 10px;
+  font-size: 1.1rem;
+}
+
+.modal p {
+  font-size: 0.95rem;
+  color: #555;
+  margin-bottom: 20px;
+}
+
+.modal-btn {
+  background: #7a1a1a;
+  color: white;
+  border: none;
+  padding: 8px 28px;
+  border-radius: 9999px;
+  font-weight: bold;
+  cursor: pointer;
+}
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0,0,0,0.5);
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    z-index: 1000;
+}
+
+.modal-content {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    width: 400px;
+
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    text-align: center;
+}
+
+.modal-content h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: #7a1a1a;
+}
+
+.modal-content p {
+    color: #4b5563;
+    margin-bottom: 25px;
+    line-height: 1.5;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
 </style>

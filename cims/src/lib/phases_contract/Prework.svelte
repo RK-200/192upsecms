@@ -1,5 +1,8 @@
 <script lang="ts">
   type Item = { text: string; done: boolean };
+  export let preworkId: string;
+  let showConfirmModal = false;
+  let isSaving = false;
 
   let checklist: Item[] = [
     { text: "Financial Obligations", done: false },
@@ -27,7 +30,7 @@
   let showError = false;
 let errorMessage = "";
 
-function handleNext() {
+function validateBeforeConfirm() {
   const hasEmptyField = checklist.some(
     item => item.text.trim() === ""
   );
@@ -44,9 +47,14 @@ function handleNext() {
     errorMessage = "Please check at least one requirement before proceeding.";
     showError = true;
     return;
-  }
 
-  dispatch("next");
+  }
+  showConfirmModal = true;
+}
+
+function handleNext(){
+	showConfirmModal = false;
+	dispatch("next");
 }
 
 </script>
@@ -109,7 +117,7 @@ function handleNext() {
 		</div>
 	</div>
 	<div class="pagenav">
-		<button class="next" onclick={handleNext}>Proceed to <br/> Approval and review</button>
+		<button class="next" onclick={(validateBeforeConfirm)}>Proceed to <br/> Approval and review</button>
 	</div>
 
 {#if showError}
@@ -122,6 +130,35 @@ function handleNext() {
       </button>
     </div>
   </div>
+{/if}
+{#if showConfirmModal}
+<div class="modal-overlay">
+    <div class="modal-content">
+        <h3>Confirmation</h3>
+
+        <p>
+            Are you sure you want to proceed to the Review and Approval phase?
+        </p>
+
+        <div class="modal-actions">
+            <button
+                class="cancel-button"
+                onclick={() => showConfirmModal = false}
+                disabled={isSaving}
+            >
+                Cancel
+            </button>
+
+            <button
+                class="import-button"
+                onclick={handleNext}
+                disabled={isSaving}
+            >
+                Confirm & Proceed
+            </button>
+        </div>
+    </div>
+</div>
 {/if}
 </div>
 
@@ -387,5 +424,47 @@ function handleNext() {
   border-radius: 9999px;
   font-weight: bold;
   cursor: pointer;
+}
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0,0,0,0.5);
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    z-index: 1000;
+}
+
+.modal-content {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    width: 400px;
+
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    text-align: center;
+}
+
+.modal-content h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: #7a1a1a;
+}
+
+.modal-content p {
+    color: #4b5563;
+    margin-bottom: 25px;
+    line-height: 1.5;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
 }
 </style>

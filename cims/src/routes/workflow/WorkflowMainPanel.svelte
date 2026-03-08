@@ -48,7 +48,6 @@
     .tab:last-child {
         border-right: none;
     }
-
     .tab.active {
         background-color: #7a1a1a; 
         color: white;              
