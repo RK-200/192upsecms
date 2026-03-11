@@ -4,73 +4,63 @@
     import SigningActivation from "$lib/phases_contract/SigningActivation.svelte";
     import Postwork from "$lib/phases_contract/Postwork.svelte";
 
-        interface Props {
+    interface Props {
         phase: string;
-        onPhaseChange: (phase: string) => void;
-
-        preworkId?: any;
-        approvalId?: any;
-        activationId?: any;
-        postworkId?: any;
+        onPhaseChange: (p: string) => void;
+        contractData: any; 
     }
 
-    let {
-        phase,
-        onPhaseChange,
-        preworkId,
-        approvalId,
-        activationId,
-        postworkId
+    let { 
+        phase, 
+        onPhaseChange, 
+        contractData = $bindable() 
     }: Props = $props();
 
     function changePhase(p: string) {
-        onPhaseChange(p);
+        phase = p;
     }
 </script>
 
 <div class="phase">
 
-<h2 style="text-align:center">{phase}</h2>
+    <h2 style="text-align:center">{phase}</h2>
 
-{#if phase === "Prework"}
+    {#if phase === "Prework"}
 
-    <Prework
-        {preworkId}
-        on:next={() => changePhase("Review and Approval")}
-    />
+        <Prework
+            bind:data={contractData.prework}
+            on:next={() => changePhase("Review and Approval")}
+        />
 
-{:else if phase === "Review and Approval"}
+    {:else if phase === "Review and Approval"}
 
-    <ReviewApproval
-        {approvalId}
-        on:back={() => changePhase("Prework")}
-        on:next={() => changePhase("Signing and Activation")}
-    />
+        <ReviewApproval
+            bind:data={contractData.approval}
+            on:back={() => changePhase("Prework")}
+            on:next={() => changePhase("Signing and Activation")}
+        />
 
-{:else if phase === "Signing and Activation"}
+    {:else if phase === "Signing and Activation"}
 
-    <SigningActivation
-        {activationId}
-        on:back={() => changePhase("Review and Approval")}
-        on:next={() => changePhase("Postwork")}
-    />
+        <SigningActivation
+            bind:data={contractData.activation}
+            on:back={() => changePhase("Review and Approval")}
+            on:next={() => changePhase("Postwork")}
+        />
 
-{:else if phase === "Postwork"}
+    {:else if phase === "Postwork"}
 
-    <Postwork
-        {postworkId}
-        on:back={() => changePhase("Signing and Activation")}
-    />
+        <Postwork
+            bind:data={contractData.postwork}
+            on:back={() => changePhase("Signing and Activation")}
+        />
 
-{/if}
+    {/if}
 
 </div>
 
 <style>
 .phase {
-    /*padding: 1rem;*/
+    padding: 1rem;
 }
-/*.debug-box {
-    outline: 5px solid orange;
-}*/
 </style>

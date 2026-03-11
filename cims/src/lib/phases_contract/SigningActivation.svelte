@@ -1,58 +1,56 @@
 <script lang="ts">
-	type Party = { name: string; done: boolean };
-	
-	let showError = false;
-	let errorMessage = "";
-	let showConfirmModal = false;
-	export let activationId: string;
+    import { createEventDispatcher } from "svelte";
+	import { contractStore } from '$lib/contractdetail';
+    const dispatch = createEventDispatcher();
 
-	let parties: Party[] = [
-		{ name: "Party 1", done: false },
-		{ name: "Party 2", done: false }
-	];
+    interface Props { data: any; }
+    let { data = $bindable() }: Props = $props();
 
-	function addParty() {
-		parties = [...parties, { name: "New Party", done: false }];
-	}
+    type Party = { name: string; done: boolean };
 
-	function removeParty(index: number) {
-		parties = parties.filter((_, i) => i !== index);
-	}
-	import { createEventDispatcher } from "svelte";
-  const dispatch = createEventDispatcher();
-  function handleNext() {
-	showConfirmModal = false;
-	//console.log("NEXT DISPATCHED");
-	dispatch("next");
-  }
+    let parties = $derived($contractStore.activation.parties.length > 0 ? $contractStore.activation.parties : [/* default */]);
+    
+    $effect(() => {
+        contractStore.update(s => ({ ...s, activation: { parties } }));
+    });
 
-function handleback(){
-	dispatch("back");
-}
+    let showError = $state(false);
+    let errorMessage = $state("");
+    let showConfirmModal = $state(false);
 
-function validateBeforeConfirm() {
-
-    // no parties
-    if (parties.length === 0) {
-        errorMessage = "Action Required: Please add at least one signing party.";
-        showError = true;
-        return;
+    function addParty() {
+        parties =[...parties, { name: "New Party", done: false }];
     }
 
-    // empty party names
-    const hasEmptyParty = parties.some(
-        party => party.name.trim() === ""
-    );
-
-    if (hasEmptyParty) {
-        errorMessage = "Party names cannot be empty.";
-        showError = true;
-        return;
+    function removeParty(index: number) {
+        parties = parties.filter((_, i) => i !== index);
     }
 
-    showConfirmModal = true;
-}
+    function handleNext() {
+        showConfirmModal = false;
+        dispatch("next");
+    }
 
+    function handleback() {
+        dispatch("back");
+    }
+
+    function validateBeforeConfirm() {
+        if (parties.length === 0) {
+            errorMessage = "Action Required: Please add at least one signing party.";
+            showError = true;
+            return;
+        }
+
+        const hasEmptyParty = parties.some(party => party.name.trim() === "");
+        if (hasEmptyParty) {
+            errorMessage = "Party names cannot be empty.";
+            showError = true;
+            return;
+        }
+
+        showConfirmModal = true;
+    }
 </script>
 
 <div class="phase-container">
@@ -109,7 +107,7 @@ function validateBeforeConfirm() {
 	</div>
 	<div class="pagenav">
 		<button class="back" on:click={handleback}>Return to <br/> Review and Approval</button>
-		<button class="next" on:click={validateBeforeConfirm}>Proceed to <br> Signing and Activation</button>
+		<button class="next" on:click={validateBeforeConfirm}>Proceed to <br> Postwork </button>
 	</div>
 </div>
 {#if showError}

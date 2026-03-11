@@ -1,9 +1,9 @@
 <script lang="ts">
     import CreateContractPhase from "../../lib/CreateContractPhase.svelte";
 
-    let {contract}: {contract: any } = $props();
     let activePhase = $state("Prework");
-
+    let { contractData = $bindable() }: { contractData: any } = $props();
+    
     let phases = [
         "Prework",
         "Review and Approval",
@@ -16,23 +16,19 @@
 <div class="phases-container">
     <div class="tab-bar">
         {#each phases as phase}
-            <button 
-                class="tab " 
+            <div 
+                class="tab" 
                 class:active={activePhase === phase}
             >
                 {phase}
-            </button>
+            </div>
         {/each}
     </div>
     <div class="content-area">
         <CreateContractPhase
             phase={activePhase}
-            onPhaseChange={(p) => activePhase = p}
-
-            preworkId={contract?.prework}
-            approvalId={contract?.approval}
-            activationId={contract?.activation}
-            postworkId={contract?.postwork}
+            onPhaseChange={(p: string) => activePhase = p}
+            bind:contractData={contractData}
         />
     </div>
 

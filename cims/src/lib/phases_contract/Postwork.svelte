@@ -1,26 +1,34 @@
 <script lang="ts">
-export let postworkId: string;
-	let milestones = [
-		{ text: "Milestone 1", done: false },
-		{ text: "Milestone 2", done: false },
-		{ text: "Milestone 3", done: false }
-	];
+    import { createEventDispatcher } from "svelte";
+    
+    const dispatch = createEventDispatcher();
+    interface Props { data: any; }
+    let { data = $bindable() }: Props = $props();
 
-	let terminationType = "";
-	let reason = "";
-	
-	import { createEventDispatcher } from "svelte";
-  const dispatch = createEventDispatcher();
-  function handleback() {
-	dispatch("back");
-  }
-	function addMilestone() {
-    milestones = [...milestones, { text: `Milestone ${milestones.length + 1}`, done: false }];
-}
+    type Milestone = { text: string; done: boolean };
 
-function removeMilestone(index: number) {
-    milestones = milestones.filter((_, i) => i !== index);
-}
+    let milestones: Milestone[] = $state(
+        data.milestones?.length ? data.milestones :[]
+    );
+
+    let terminationType = $state(data.terminationType || "");
+    let reason = $state(data.reason || "");
+
+    $effect(() => {
+        data.milestones = milestones;
+        data.terminationType = terminationType;
+        data.reason = reason;
+    });
+
+    function handleback() {
+        dispatch("back");
+    }
+
+    function addMilestone() {
+        milestones.push({ text: `Milestone ${milestones.length + 1}`, done: false });
+    }
+
+
 </script>
 
 <div class="phase-container">
@@ -42,8 +50,6 @@ function removeMilestone(index: number) {
                     bind:value={m.text}
                     placeholder="Enter milestone"
                 />
-
-                <button class="delete-btn" onclick={() => removeMilestone(i)}>×</button>
             </div>
         {/each}
     </div>
@@ -71,18 +77,10 @@ function removeMilestone(index: number) {
 				bind:value={reason}
 			></textarea>
 		</div>
-
-		<div class="footer-actions">
-			<button class="pill-button">Confirm</button>
-		</div>
-	</div>
-	<div class="pagenav">
-		<button class="back" onclick={handleback}>Return to <br/> Signing and Activation</button>
 	</div>
 </div>
 
 <style>
-	/* ===== LAYOUT (NOT FULL FRAME) ===== */
 	.phase-container {
 		display: grid;
 		grid-template-columns: 1fr 1fr;
@@ -90,7 +88,6 @@ function removeMilestone(index: number) {
 		font-family: sans-serif;
 	}
 
-	/* ===== CARD STYLE ===== */
 	.section-card {
 		display: flex;
 		flex-direction: column;
@@ -168,20 +165,6 @@ function removeMilestone(index: number) {
     font-size: 0.95rem;
 }
 
-.delete-btn {
-    background: #f3f4f6;
-    border: none;
-    border-radius: 6px;
-    padding: 4px 10px;
-    cursor: pointer;
-    font-weight: bold;
-    color: #555;
-}
-
-.delete-btn:hover {
-    background: #e5e7eb;
-}
-
 	/* ===== FORM ===== */
 	.form-group {
 		display: flex;
@@ -227,38 +210,8 @@ function removeMilestone(index: number) {
 		cursor: pointer;
 	}
 
-	.footer-actions {
-		margin-top: 8px;
-	}
-
 	.pill-button:hover {
 		background-color: #5a1313;
 	}
 
-	.back {
-  background-color: #7a1a1a; /* maroon */
-  color: white;
-  flex: 0.14;
-  border: none;
-  padding: 12px 40px;
-  border-radius: 9999px; /* fully rounded pill */
-  font-weight: bold;
-  cursor: pointer;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
-  transition: background-color 0.2s ease, transform 0.1s ease;
-}
-.pagenav {
-  grid-column: 1 / -1;
-  display: flex;
-  justify-content: left;
-  margin-top: 30px;
-}
-
-.back:hover {
-  background-color: #5a1313;
-}
-
-.back:active {
-  transform: scale(0.97);
-}
 </style>

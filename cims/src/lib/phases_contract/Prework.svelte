@@ -1,62 +1,50 @@
 <script lang="ts">
-  type Item = { text: string; done: boolean };
-  export let preworkId: string;
-  let showConfirmModal = false;
-  let isSaving = false;
+    import { createEventDispatcher } from "svelte";
+	import { contractStore } from '$lib/contractdetail';
+    const dispatch = createEventDispatcher();
 
-  let checklist: Item[] = [
-    { text: "Financial Obligations", done: false },
-    { text: "Duration of the Agreement", done: false },
-    { text: "Title", done: false },
-    { text: "Authority", done: false },
-    { text: "Parties involved", done: false },
-    { text: "Scope of work", done: false },
-    { text: "Date of Agreement", done: false },
-    { text: "Contacts", done: false },
-    { text: "Roles and Responsibilities", done: false },
-    { text: "Payment Schedule", done: false }
-  ];
+    interface Props { data: any; }
+    let { data = $bindable() }: Props = $props();
 
-  function addField() {
-    checklist = [...checklist, { text: "New Field", done: false }];
-  }
+    type Item = { text: string; done: boolean };
+    
+    let checklist = $derived($contractStore.prework.checklist.length > 0 ? $contractStore.prework.checklist : [/* default */]);
+    
+    $effect(() => {
+        contractStore.update(s => ({ ...s, prework: { checklist } }));
+    });
 
-  function removeField(index: number) {
-    checklist = checklist.filter((_, i) => i !== index);
-  }
+    let showConfirmModal = $state(false);
+    let isSaving = $state(false);
+    let showError = $state(false);
+    let errorMessage = $state("");
 
-  import { createEventDispatcher } from "svelte";
-  const dispatch = createEventDispatcher();
-  let showError = false;
-let errorMessage = "";
+    function addField() {
+        checklist =[...checklist, { text: "New Field", done: false }];
+    }
 
-function validateBeforeConfirm() {
-  const hasEmptyField = checklist.some(
-    item => item.text.trim() === ""
-  );
+    function validateBeforeConfirm() {
+        const hasEmptyField = checklist.some(item => item.text.trim() === "");
+        if (hasEmptyField) {
+            errorMessage = "Checklist fields cannot be empty. Please fill in or remove empty fields.";
+            showError = true;
+            return;
+        }
 
-  if (hasEmptyField) {
-    errorMessage = "Checklist fields cannot be empty. Please fill in or remove empty fields.";
-    showError = true;
-    return;
-  }
+        const hasCheckedItem = checklist.some(item => item.done);
+        if (!hasCheckedItem) {
+            errorMessage = "Please check at least one requirement before proceeding.";
+            showError = true;
+            return;
+        }
 
-  const hasCheckedItem = checklist.some(item => item.done);
+        showConfirmModal = true;
+    }
 
-  if (!hasCheckedItem) {
-    errorMessage = "Please check at least one requirement before proceeding.";
-    showError = true;
-    return;
-
-  }
-  showConfirmModal = true;
-}
-
-function handleNext(){
-	showConfirmModal = false;
-	dispatch("next");
-}
-
+    function handleNext() {
+        showConfirmModal = false;
+        dispatch("next");
+    }
 </script>
 
 <div class="phase-container">

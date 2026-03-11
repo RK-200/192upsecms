@@ -85,7 +85,7 @@
 		}
 
 		isSaving = true;
-
+		
 		try {
 			// remove completely blank stages, and remove blank items inside valid stages
 			const validStages = stages

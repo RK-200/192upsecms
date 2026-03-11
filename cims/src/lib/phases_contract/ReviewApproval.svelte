@@ -1,88 +1,74 @@
 <script lang="ts">
-	type ApprovalItem = { text: string; done: boolean };
-	type Stage = { name: string; items: ApprovalItem[] };
-	export let approvalId: string;
+    import { createEventDispatcher } from "svelte";
+	import { contractStore } from '$lib/contractdetail';
+    const dispatch = createEventDispatcher();
 
-	let showError = false;
-	let errorMessage = "";
-	let showConfirmModal = false;
+    interface Props { data: any; }
+    let { data = $bindable() }: Props = $props();
 	
-	let stages: Stage[] = [
-		{
-			name: "Approval Stage 1",
-			items: [{ text: "Approval Item", done: false }]
-		}
-	];
-
-	function addStage() {
-		stages = [...stages, { name: "New Stage", items: [] }];
-	}
-
-	function removeStage(index: number) {
-		stages = stages.filter((_, i) => i !== index);
-	}
-
-	function addItem(stageIndex: number) {
-		stages[stageIndex].items = [
-			...stages[stageIndex].items,
-			{ text: "New Item", done: false }
-		];
-		stages = [...stages];
-	}
-
-	function removeItem(stageIndex: number, itemIndex: number) {
-		stages[stageIndex].items = stages[stageIndex].items.filter(
-			(_, i) => i !== itemIndex
-		);
-		stages = [...stages];
-	}
+    type ApprovalItem = { text: string; done: boolean };
+    type Stage = { name: string; items: ApprovalItem[] };
 	
-	import { createEventDispatcher } from "svelte";
-  const dispatch = createEventDispatcher();
-  function handleNext() {
-	//console.log("NEXT DISPATCHED");
-	dispatch("next");
-}
-function handleback(){
-	showConfirmModal = false;
-	dispatch("back");
-}
-function validateBeforeConfirm() {
+   	let stages = $derived($contractStore.approval.stages.length > 0 ? $contractStore.approval.stages: [/* default */]);
+    
+    $effect(() => {
+        contractStore.update(s => ({ ...s, approval: { stages } }));
+    });
+    let showError = $state(false);
+    let errorMessage = $state("");
+    let showConfirmModal = $state(false);
 
-    // check if no stages exist
-    if (stages.length === 0) {
-        errorMessage = "Action Required: Please add at least one review stage.";
-        showError = true;
-        return;
+    function addStage() {
+        stages =[...stages, { name: "New Stage", items: [
+            { text: "New Item", done: false }
+        ]}];
     }
 
-    // check empty stage names
-    const hasEmptyStage = stages.some(
-        stage => stage.name.trim() === ""
-    );
-
-    if (hasEmptyStage) {
-        errorMessage = "Stage names cannot be empty.";
-        showError = true;
-        return;
+    function addItem(stageIndex: number) {
+        stages[stageIndex].items = [
+            ...stages[stageIndex].items,
+            { text: "New Item", done: false }
+        ];
+        stages = [...stages];
     }
 
-    // check empty approval items
-    const hasEmptyItems = stages.some(
-        stage => stage.items.length === 0 ||
-        stage.items.some(item => item.text.trim() === "")
-    );
 
-    if (hasEmptyItems) {
-        errorMessage = "Each stage must contain at least one approval item.";
-        showError = true;
-        return;
+    function handleNext() {
+        dispatch("next");
     }
 
-    showConfirmModal = true;
-}
+    function handleback() {
+        showConfirmModal = false;
+        dispatch("back");
+    }
 
+    function validateBeforeConfirm() {
+        if (stages.length === 0) {
+            errorMessage = "Action Required: Please add at least one review stage.";
+            showError = true;
+            return;
+        }
+
+        const hasEmptyStage = stages.some(stage => stage.name.trim() === "");
+        if (hasEmptyStage) {
+            errorMessage = "Stage names cannot be empty.";
+            showError = true;
+            return;
+        }
+
+        const hasEmptyItems = stages.some(
+            stage => stage.items.length === 0 || stage.items.some(item => item.text.trim() === "")
+        );
+        if (hasEmptyItems) {
+            errorMessage = "Each stage must contain at least one approval item.";
+            showError = true;
+            return;
+        }
+
+        showConfirmModal = true;
+    }
 </script>
+
 
 <div class="phase-container">
 	<div class="checklist-section">
@@ -96,9 +82,6 @@ function validateBeforeConfirm() {
 						type="text"
 						bind:value={stage.name}
 					/>
-					<button class="delete-btn" on:click={() => removeStage(si)}>
-						×
-					</button>
 				</div>
 
 				<div class="nested-items">
@@ -114,13 +97,6 @@ function validateBeforeConfirm() {
 								type="text"
 								bind:value={item.text}
 							/>
-
-							<button
-								class="delete-btn"
-								on:click={() => removeItem(si, ii)}
-							>
-								×
-							</button>
 						</div>
 					{/each}
 
@@ -303,15 +279,7 @@ function validateBeforeConfirm() {
 		font-size: 0.95rem;
 	}
 
-	.delete-btn {
-		background: #f3f4f6;
-		border: none;
-		border-radius: 6px;
-		padding: 4px 10px;
-		cursor: pointer;
-		font-weight: bold;
-		color: #555;
-	}
+
 
 	.add-button-field {
 		background-color: #7a1a1a;
