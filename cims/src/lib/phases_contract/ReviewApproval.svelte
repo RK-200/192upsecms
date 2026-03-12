@@ -102,7 +102,7 @@
 
 					<button
 						class="add-button-field"
-						on:click={() => addItem(si)}
+						onclick={() => addItem(si)}
 					>
 						+ Add Approval Item
 					</button>
@@ -110,7 +110,7 @@
 			</div>
 		{/each}
 
-		<button class="add-button-field" on:click={addStage}>
+		<button class="add-button-field" onclick={addStage}>
 			+ Add Stage
 		</button>
 	</div>
@@ -142,8 +142,8 @@
 		</div>
 	</div>
 	<div class="pagenav">
-		<button class="back" on:click={handleback}>Return to <br/> Prework</button>
-		<button class="next" on:click={validateBeforeConfirm}>Proceed to <br> Signing and Activation</button>
+		<button class="back" onclick={handleback}>Return to <br/> Prework</button>
+		<button class="next" onclick={validateBeforeConfirm}>Proceed to <br> Signing and Activation</button>
 	</div>
 
 {#if showError}
@@ -152,7 +152,7 @@
         <h4>Action Required</h4>
         <p>{errorMessage}</p>
 
-        <button class="modal-btn" on:click={() => showError = false}>
+        <button class="modal-btn" onclick={() => showError = false}>
             OK
         </button>
     </div>
@@ -171,14 +171,14 @@
 
             <button
                 class="cancel-button"
-                on:click={() => showConfirmModal = false}
+                onclick={() => showConfirmModal = false}
             >
                 Cancel
             </button>
 
             <button
                 class="import-button"
-                on:click={handleNext}
+                onclick={handleNext}
             >
                 Confirm & Proceed
             </button>

@@ -7,9 +7,13 @@
     let { data = $bindable() }: Props = $props();
 
     type Item = { text: string; done: boolean };
-    
-    let checklist = $derived($contractStore.prework.checklist.length > 0 ? $contractStore.prework.checklist : [/* default */]);
-    
+
+	let checklist = $state<Item[]>(
+    $contractStore.prework.checklist.length > 0
+        ? [...$contractStore.prework.checklist]
+        : []
+	);
+	
     $effect(() => {
         contractStore.update(s => ({ ...s, prework: { checklist } }));
     });
@@ -22,6 +26,9 @@
     function addField() {
         checklist =[...checklist, { text: "New Field", done: false }];
     }
+	function removeField(index: number) {
+    checklist = checklist.filter((_, i) => i !== index);
+  }
 
     function validateBeforeConfirm() {
         const hasEmptyField = checklist.some(item => item.text.trim() === "");
