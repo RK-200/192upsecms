@@ -32,10 +32,11 @@
 </script>
 
 <div class="phase-container">
+	
+
 	<!-- OUTPUT MILESTONES -->
 	<div class="section-card">
     <h3>Output Milestones</h3>
-
     <div class="checklist-items">
         {#each milestones as m, i}
             <div class="milestone-row">
@@ -80,7 +81,35 @@
 	</div>
 </div>
 
+
+	<div class="pagenav">
+    <button class="back" onclick={handleback}>
+        Return to <br/> Signing & Activation
+    </button>
+	</div>
+
 <style>
+.pagenav{
+    grid-column:1/-1;
+    display:flex;
+    justify-content:flex-start;
+    margin-top:30px;
+}
+
+.back{
+    background-color:#7a1a1a;
+    color:white;
+    border:none;
+    padding:12px 40px;
+    border-radius:9999px;
+    font-weight:bold;
+    cursor:pointer;
+    box-shadow:0 4px 6px rgba(0,0,0,0.15);
+}
+
+.back:hover{
+    background-color:#5a1313;
+}
 	.phase-container {
 		display: grid;
 		grid-template-columns: 1fr 1fr;

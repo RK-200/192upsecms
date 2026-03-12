@@ -105,10 +105,10 @@
 				<div class="nested-items">
 					{#each stage.items as item, ii}
 						<div class="checklist-row">
-							<input
-							class="big-checkbox"
-							type="checkbox"
-							bind:checked={item.done}/>
+							<label class="custom-checkbox">
+								<input type="checkbox" bind:checked={item.done} />
+								<span class="checkmark"></span>
+							</label>
 
 							<input
 								class="editable-text"
@@ -275,41 +275,48 @@
 	.delete-btn:hover {
     background: #e5e7eb;
 	}
-/*
-	.custom-checkbox input {
-		display: none;
-	}
+	.checklist-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
 
-	.checkmark {
-		height: 20px;
-		width: 20px;
-		border: 2px solid #333;
-		border-radius: 4px;
-		position: relative;
-		cursor: pointer;
-	}
+	.custom-checkbox {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
 
-	.custom-checkbox input:checked + .checkmark {
-		background-color: #333;
-	}
+.custom-checkbox input {
+    display: none;
+}
 
-	.custom-checkbox input:checked + .checkmark:after {
-		content: "";
-		position: absolute;
-		left: 6px;
-		top: 2px;
-		width: 5px;
-		height: 10px;
-		border: solid white;
-		border-width: 0 2px 2px 0;
-		transform: rotate(45deg);
-	}
-*/
-	.big-checkbox {
-    	width: 18px;
-    	height: 18px;
-    	cursor: pointer;
-	}
+.checkmark {
+    height: 20px;
+    width: 20px;
+    border: 2px solid #333;
+    border-radius: 4px;
+    display: inline-block;
+    position: relative;
+    cursor: pointer;
+    flex-shrink: 0; /* prevents shrinking inside flex */
+}
+
+.custom-checkbox input:checked + .checkmark {
+    background-color: #333;
+}
+
+.custom-checkbox input:checked + .checkmark:after {
+    content: "";
+    position: absolute;
+    left: 6px;
+    top: 2px;
+    width: 5px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
 	.editable-text {
 		flex: 1;
 		border: 1px solid #e5e7eb;

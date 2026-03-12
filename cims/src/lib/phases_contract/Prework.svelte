@@ -185,36 +185,43 @@
 		gap: 12px;
 	}
 
+	.custom-checkbox {
+    	display: flex;
+    	align-items: center;
+    	cursor: pointer;
+	}
+
 	.custom-checkbox input {
-		display: none;
+    	display: none;
 	}
 
 	.checkmark {
-		height: 20px;
-		width: 20px;
-		border: 2px solid #333;
-		border-radius: 4px;
-		display: inline-block;
-		position: relative;
-		cursor: pointer;
+    	height: 20px;
+    	width: 20px;
+    	border: 2px solid #333;
+    	border-radius: 4px;
+    	display: inline-block;
+    	position: relative;
+    	cursor: pointer;
+    	flex-shrink: 0; /* prevents shrinking inside flex */
 	}
 
 	.custom-checkbox input:checked + .checkmark {
-		background-color: #333;
+    	background-color: #333;
 	}
 
 	.custom-checkbox input:checked + .checkmark:after {
-		content: "";
-		position: absolute;
-		left: 6px;
-		top: 2px;
-		width: 5px;
-		height: 10px;
-		border: solid white;
-		border-width: 0 2px 2px 0;
-		transform: rotate(45deg);
+    	content: "";
+    	position: absolute;
+    	left: 6px;
+    	top: 2px;
+    	width: 5px;
+    	height: 10px;
+    	border: solid white;
+    	border-width: 0 2px 2px 0;
+    	transform: rotate(45deg);
 	}
-
+	
 	.editable-text {
 		flex: 1;
 		border: 1px solid #e5e7eb;

@@ -7,12 +7,17 @@
     let { data = $bindable() }: Props = $props();
 
     type Party = { name: string; done: boolean };
+	
+	let parties = $state<Party[]>(
+    $contractStore.activation.parties.length
+        ? [...$contractStore.activation.parties]
+        : []);
 
-    let parties = $derived($contractStore.activation.parties.length > 0 ? $contractStore.activation.parties : [/* default */]);
-    
     $effect(() => {
-        contractStore.update(s => ({ ...s, activation: { parties } }));
-    });
+        contractStore.update(s => ({...s,
+			activation:{
+				...s.activation,
+				parties}}));});
 
     let showError = $state(false);
     let errorMessage = $state("");
@@ -70,13 +75,13 @@
 					bind:value={party.name}
 				/>
 
-				<button class="delete-btn" on:click={() => removeParty(i)}>
+				<button class="delete-btn" onclick={() => removeParty(i)}>
 					×
 				</button>
 			</div>
 		{/each}
 
-		<button class="add-button-field" on:click={addParty}>
+		<button class="add-button-field" onclick={addParty}>
 			+ Add Party
 		</button>
 	</div>
@@ -106,8 +111,8 @@
 		</div>
 	</div>
 	<div class="pagenav">
-		<button class="back" on:click={handleback}>Return to <br/> Review and Approval</button>
-		<button class="next" on:click={validateBeforeConfirm}>Proceed to <br> Postwork </button>
+		<button class="back" onclick={handleback}>Return to <br/> Review and Approval</button>
+		<button class="next" onclick={validateBeforeConfirm}>Proceed to <br> Postwork </button>
 	</div>
 </div>
 {#if showError}
@@ -116,7 +121,7 @@
         <h4>Action Required</h4>
         <p>{errorMessage}</p>
 
-        <button class="modal-btn" on:click={() => showError = false}>
+        <button class="modal-btn" onclick={() => showError = false}>
             OK
         </button>
     </div>
@@ -135,14 +140,14 @@
 
             <button
                 class="cancel-button"
-                on:click={() => showConfirmModal = false}
+                onclick={() => showConfirmModal = false}
             >
                 Cancel
             </button>
 
             <button
                 class="import-button"
-                on:click={handleNext}
+                onclick={handleNext}
             >
                 Confirm & Proceed
             </button>
@@ -195,21 +200,42 @@
 		gap: 12px;
 	}
 
-	.custom-checkbox input {
-		display: none;
-	}
+	.custom-checkbox {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
 
-	.checkmark {
-		height: 20px;
-		width: 20px;
-		border: 2px solid #333;
-		border-radius: 4px;
-		cursor: pointer;
-	}
+.custom-checkbox input {
+    display: none;
+}
 
-	.custom-checkbox input:checked + .checkmark {
-		background-color: #333;
-	}
+.checkmark {
+    height: 20px;
+    width: 20px;
+    border: 2px solid #333;
+    border-radius: 4px;
+    display: inline-block;
+    position: relative;
+    cursor: pointer;
+    flex-shrink: 0; /* prevents shrinking inside flex */
+}
+
+.custom-checkbox input:checked + .checkmark {
+    background-color: #333;
+}
+
+.custom-checkbox input:checked + .checkmark:after {
+    content: "";
+    position: absolute;
+    left: 6px;
+    top: 2px;
+    width: 5px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
 
 	.editable-text {
 		flex: 1;
