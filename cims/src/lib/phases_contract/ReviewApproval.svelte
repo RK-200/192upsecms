@@ -9,14 +9,31 @@
     type ApprovalItem = { text: string; done: boolean };
     type Stage = { name: string; items: ApprovalItem[] };
 	
-   	let stages = $derived($contractStore.approval.stages.length > 0 ? $contractStore.approval.stages: [/* default */]);
-    
+   	let stages = $state<Stage[]>(
+    $contractStore.approval.stages.length > 0
+        ? [...$contractStore.approval.stages]
+        : []);
+		
     $effect(() => {
-        contractStore.update(s => ({ ...s, approval: { stages } }));
-    });
+    contractStore.update(s => ({
+        ...s,
+        approval: {
+            ...s.approval,
+            stages
+        }
+    }));});
     let showError = $state(false);
     let errorMessage = $state("");
     let showConfirmModal = $state(false);
+	
+	function removeStage(stageIndex: number) {
+    stages = stages.filter((_, i) => i !== stageIndex);
+	}
+	
+	function removeItem(stageIndex: number, itemIndex: number) {
+    stages[stageIndex].items = stages[stageIndex].items.filter((_, i) => i !== itemIndex);
+    stages = [...stages];
+	}
 
     function addStage() {
         stages =[...stages, { name: "New Stage", items: [
@@ -82,21 +99,24 @@
 						type="text"
 						bind:value={stage.name}
 					/>
+					<button class="delete-btn" onclick={() => removeStage(si)}>×</button>
 				</div>
 
 				<div class="nested-items">
 					{#each stage.items as item, ii}
 						<div class="checklist-row">
-							<label class="custom-checkbox">
-								<input type="checkbox" bind:checked={item.done} />
-								<span class="checkmark"></span>
-							</label>
+							<input
+							class="big-checkbox"
+							type="checkbox"
+							bind:checked={item.done}/>
 
 							<input
 								class="editable-text"
 								type="text"
 								bind:value={item.text}
 							/>
+							<button class="delete-btn" onclick={() => removeItem(si, ii)}>×</button>
+
 						</div>
 					{/each}
 
@@ -242,6 +262,20 @@
 		gap: 12px;
 	}
 
+	.delete-btn {
+    background: #f3f4f6;
+    border: none;
+    border-radius: 6px;
+    padding: 4px 10px;
+    cursor: pointer;
+    font-weight: bold;
+    color: #555;
+	}
+	
+	.delete-btn:hover {
+    background: #e5e7eb;
+	}
+/*
 	.custom-checkbox input {
 		display: none;
 	}
@@ -270,7 +304,12 @@
 		border-width: 0 2px 2px 0;
 		transform: rotate(45deg);
 	}
-
+*/
+	.big-checkbox {
+    	width: 18px;
+    	height: 18px;
+    	cursor: pointer;
+	}
 	.editable-text {
 		flex: 1;
 		border: 1px solid #e5e7eb;
@@ -388,8 +427,8 @@
 	}
 
 	.next {
-  background-color: #7a1a1a; /* maroon */
   flex: 0.14;
+  background-color: #7a1a1a; /* maroon */
   color: white;
   border: none;
   padding: 12px 40px;
