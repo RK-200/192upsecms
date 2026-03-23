@@ -1,6 +1,19 @@
 import { supabase } from '$lib/supabaseInit';
+import { redirect } from '@sveltejs/kit';
+import type {PageServerLoad } from './$types'
 
-export async function load({ url }) {
+export const load: PageServerLoad = async ({ url, locals: { supabase, safeGetSession }}) => {
+	const {session} = await safeGetSession()
+    if (!session) {
+        redirect(303, '/')
+    }
+
+    const { data : access } = await supabase
+    .from('profiles')
+    .select(`access_level`)
+    .eq('id', session.user.id)
+    .single()
+
 	const year = url.searchParams.get('year') || 'All';
     const type = url.searchParams.get('type') || 'All';
     const status = url.searchParams.get('status') || 'All';
@@ -43,6 +56,7 @@ export async function load({ url }) {
 	}
 
 	return {
+		access : access?.access_level,
 		contracts: data,
 		filters: { year, type, status, search }
 	};

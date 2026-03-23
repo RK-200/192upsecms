@@ -1,11 +1,22 @@
 import { supabase } from '$lib/supabaseInit';
+import { redirect } from '@sveltejs/kit';
+import type {PageServerLoad } from './$types'
 
-export async function load() {
+export const load : PageServerLoad = async ({ locals: { supabase, safeGetSession } }) => {
+    const {session} = await safeGetSession()
+    if (!session) {
+        redirect(303, '/')
+    }
+
+    const { data : access } = await supabase
+    .from('profiles')
+    .select(`access_level`)
+    .eq('id', session.user.id)
+    .single()
+
     const { data, error } = await supabase
         .from('workflows')
         .select('*');
-
-    //console.log(data);
 
     if (error) {
         console.error(error);
@@ -13,6 +24,7 @@ export async function load() {
     }
 
     return {
+        access : access?.access_level,
         workflows: data
     };
 }

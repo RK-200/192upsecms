@@ -17,7 +17,7 @@
     import { supabase } from "$lib/supabaseInit"; 
 
     let { data } = $props();
-    let { contracts, filters } = $derived(data); 
+    let { access, contracts, filters } = $derived(data); 
 
     let showConfirmModal = $state(false);
     let isUpdating = $state(false);
@@ -79,7 +79,9 @@
     }
 </script>
 
-
+{#if access !== "Workflow Manager" && access !== "Contract Manager" && access !== "Contract Viewer"}
+    <h1 style="text-align:center; margin-top: 4rem;">You do not have access to view this page. <br> Please contact a Workflow Manager or a Contract Manager.</h1>
+{:else}
 <div class="main-content">
     <div class="header">
         <h1 class="page-title">Contract Records List</h1>
@@ -196,6 +198,7 @@
         </div>
     </div>
 {/if}
+{/if}
 
 <style>
     :global(body) {
@@ -221,6 +224,9 @@
     th:nth-child(2), td:nth-child(2) { width: 15%; }
     th:nth-child(3), td:nth-child(3) { width: 25%; }
     th:nth-child(4), td:nth-child(4) { width: 25%; }
+    tbody tr:nth-child(odd) {
+		background-color: #eeeeee;
+	}
 
     .status-dropdown {
         border: none;

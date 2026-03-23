@@ -3,7 +3,7 @@
     import { Pencil, Check } from 'lucide-svelte';
 
     let {data} = $props();
-    let {workflows} = data;
+    let {access, workflows} = data;
 
     let activeWorkflow = $state(workflows[0]); 
     let activeWorkflowId = $derived(activeWorkflow.id);
@@ -36,6 +36,9 @@
     }
 </script>
 
+{#if access !== "Workflow Manager"}
+    <h1 style="text-align:center; margin-top: 4rem;">You do not have access to view this page. <br> Please contact a Workflow Manager.</h1>
+{:else}
 <div class="main-content">
     <div class="sidebar">
         <h2>Workflows</h2>
@@ -81,6 +84,7 @@
         <WorkflowMainPanel workflow={activeWorkflow} />
     </div>
 </div>
+{/if}
 
 <style>
     .main-content {
