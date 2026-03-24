@@ -15,14 +15,14 @@
 
 <div class="phases-container">
     <div class="tab-bar">
-        {#each phases as phase}
-            <div 
-                class="tab" 
-                class:active={activePhase === phase}
-            >
-                {phase}
-            </div>
-        {/each}
+    {#each phases as phase}
+    <div
+    class="tab"
+    class:active={activePhase === phase}
+>
+    {phase}
+    </div>
+{/each}
     </div>
     <div class="content-area">
         <CreateContractPhase
@@ -33,8 +33,6 @@
     </div>
 
 </div>
-
-
 <style>
 
     .phases-container {
@@ -45,23 +43,26 @@
     }
 
     .tab-bar {
+        flex: 1;
         display: flex;
         background-color: #f3f4f6;
         border-bottom: 2px solid #e5e7eb;
     }
 
     .tab {
-        flex: 1;
-        padding: 15px 10px;
-        border: none;
-        background: transparent;
-        font-size: 16px;
-        font-weight: bold;
-        color: #7a1a1a; 
-        cursor: pointer;
-        border-right: 1px solid #e5e7eb;
-        transition: all 0.2s;
-    }
+    flex: 1;                  
+    display: flex;            
+    justify-content: center;   
+    align-items: center;       
+    padding: 15px 10px;
+    background: transparent;
+    font-size: 16px;
+    font-weight: bold;
+    color: #7a1a1a;
+    cursor: pointer;
+    border-right: 1px solid #e5e7eb;
+    transition: all 0.2s;
+}
 
     .tab:last-child {
         border-right: none;

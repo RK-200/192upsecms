@@ -17,7 +17,7 @@
     }: Props = $props();
 
     function changePhase(p: string) {
-        phase = p;
+        onPhaseChange(p);
     }
 </script>
 

@@ -12,6 +12,7 @@
 	let isSaving = $state(false);
 	let isLoading = $state(true);
 	let showConfirmModal = $state(false);
+	let files = $state<File[]>([]);
 
 	const dispatch = createEventDispatcher();
 
@@ -115,6 +116,28 @@
 			isSaving = false;
 		}
 	}
+
+function handleFileSelect(event: Event) {
+	const input = event.target as HTMLInputElement;
+	if (input.files) {
+		files = [...files, ...Array.from(input.files)];
+	}
+}
+
+function handleDrop(event: DragEvent) {
+	event.preventDefault();
+	if (event.dataTransfer?.files) {
+		files = [...files, ...Array.from(event.dataTransfer.files)];
+	}
+}
+
+function handleDragOver(event: DragEvent) {
+	event.preventDefault();
+}
+
+function removeFile(index: number) {
+	files = files.filter((_, i) => i !== index);
+}
 </script>
 
 <div class="phase-container">
@@ -174,30 +197,57 @@
 
 	<!-- FILE UPLOAD -->
 	<div class="upload-section">
-		<div class="upload-header">
-			<h3>Add Default Files</h3>
-			<button class="close-x">×</button>
-		</div>
-
-		<div class="drop-zone">
-			<p>Drag & Drop or <span class="blue-text">Choose file</span> to upload</p>
-		</div>
-
-		<div class="divider">
-			<span>OR</span>
-		</div>
-
-		<p class="input-label">Import from URL</p>
-		<div class="url-input-container">
-			<input type="text" placeholder="Add file URL" />
-			<button class="upload-text-button">Upload</button>
-		</div>
-
-		<div class="action-footer">
-			<button class="cancel-button">Cancel</button>
-			<button class="import-button">Import</button>
-		</div>
+	<div class="upload-header">
+		<h3>Add Default Files</h3>
 	</div>
+
+	<input 
+		type="file" 
+		multiple 
+		class="hidden-file-input" 
+		onchange={handleFileSelect} 
+	/>
+
+	<div 
+		class="drop-zone"
+		role="button"
+		tabindex="0"
+		ondrop={handleDrop}
+		ondragover={handleDragOver}
+		onclick={() => (document.querySelector('.hidden-file-input') as HTMLInputElement)?.click()}
+		onkeydown={(e) => {
+			if (e.key === 'Enter' || e.key === ' ') {
+				(document.querySelector('.hidden-file-input') as HTMLInputElement)?.click();
+			}
+		}}
+	>
+		<p>
+			<button 
+				type="button"
+				class="blue-text"
+				onclick={(e) => {
+					e.stopPropagation();
+					(document.querySelector('.hidden-file-input') as HTMLInputElement)?.click();
+				}}
+			>
+				Choose file
+			</button>
+			to upload
+		</p>
+	</div>
+
+	{#if files.length > 0}
+		<div class="uploaded-files">
+			<h4>Uploaded Files</h4>
+			{#each files as file, i}
+				<div class="file-item">
+					{file.name}
+					<button onclick={() => removeFile(i)}>×</button>
+				</div>
+			{/each}
+		</div>
+	{/if}
+</div>
 
 	<div class="pagenav">
 		<button class="back" onclick={handleBack} disabled={isLoading || isSaving}>
@@ -241,15 +291,6 @@
 		align-items: flex-start;
 	}
 
-	.close-x {
-		background: #f3f4f6;
-		border: none;
-		border-radius: 4px;
-		color: #999;
-		cursor: pointer;
-		padding: 2px 8px;
-	}
-
 	h3 {
 		font-size: 1rem;
 		margin-bottom: 20px;
@@ -286,6 +327,7 @@
 	}
 
 	.checkmark {
+		display: inline-block;
 		height: 20px;
 		width: 20px;
 		border: 2px solid #333;
@@ -352,61 +394,6 @@
 		color: #3b00ff;
 		font-weight: bold;
 		cursor: pointer;
-	}
-
-	.divider {
-		display: flex;
-		align-items: center;
-		text-align: center;
-		margin: 15px 0;
-		color: #999;
-		font-size: 0.8rem;
-	}
-
-	.divider::before, .divider::after {
-		content: '';
-		flex: 1;
-		border-bottom: 1px solid #e5e7eb;
-	}
-
-	.divider span {
-		padding: 0 10px;
-	}
-
-	.input-label {
-		font-size: 1rem;
-		margin-bottom: 8px;
-		color: #374151;
-	}
-
-	.url-input-container {
-		display: flex;
-		background: #f9fafb;
-		border: 1px solid #e5e7eb;
-		border-radius: 8px;
-		padding: 8px 15px;
-		margin-bottom: 30px;
-	}
-
-	.url-input-container input {
-		flex: 1;
-		border: none;
-		background: transparent;
-		outline: none;
-	}
-
-	.upload-text-button {
-		background: transparent;
-		border: none;
-		color: #333;
-		cursor: pointer;
-		font-weight: 500;
-	}
-
-	.action-footer {
-		display: flex;
-		justify-content: center;
-		gap: 15px;
 	}
 
 	.cancel-button {
@@ -488,4 +475,33 @@
         justify-content: center;
         gap: 15px;
     }
+
+	.hidden-file-input {
+	display: none;
+}
+
+.uploaded-files {
+	margin-top: 20px;
+}
+
+.file-item {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	background: #f3f4f6;
+	padding: 8px 12px;
+	border-radius: 6px;
+	margin-bottom: 8px;
+	font-size: 0.9rem;
+}
+
+.blue-text {
+	background: none;
+	border: none;
+	padding: 0;
+	font: inherit;
+	color: #3b00ff;
+	font-weight: bold;
+	cursor: pointer;
+}
 </style>
