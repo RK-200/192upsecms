@@ -1,6 +1,6 @@
 <script lang="ts">
     import { createEventDispatcher } from "svelte";
-	import { contractStore } from '$lib/contractdetail';
+    import { contractStore } from '$lib/contractdetail';
     const dispatch = createEventDispatcher();
 
     interface Props { data: any; }
@@ -8,25 +8,29 @@
 
     type Party = { name: string; done: boolean };
 	
-	let parties = $state<Party[]>(
-    $contractStore.activation.parties.length
-        ? [...$contractStore.activation.parties]
-        : []);
+    let parties = $state<Party[]>(
+        $contractStore.activation.parties.length
+            ? [...$contractStore.activation.parties]
+            : []
+    );
 
     $effect(() => {
-        contractStore.update(s => ({...s,
-			activation:{
-				...s.activation,
-				parties}}));});
+        contractStore.update(s => ({
+            ...s,
+            activation: {
+                ...s.activation,
+                parties
+            }
+        }));
+    });
 
     let showError = $state(false);
     let errorMessage = $state("");
     let showConfirmModal = $state(false);
-	let files = $state<File[]>([]);
+    let files = $state<File[]>([]);
 	
-
     function addParty() {
-        parties =[...parties, { name: "New Party", done: false }];
+        parties = [...parties, { name: "New Party", done: false }];
     }
 
     function removeParty(index: number) {
@@ -59,116 +63,118 @@
         showConfirmModal = true;
     }
 
-	function handleFileSelect(event: Event) {
-	const input = event.target as HTMLInputElement;
-	if (input.files) {
-		files = [...files, ...Array.from(input.files)];
-	}
-}
+    function handleFileSelect(event: Event) {
+        const input = event.target as HTMLInputElement;
+        if (input.files) {
+            files = [...files, ...Array.from(input.files)];
+        }
+    }
 
-function handleDrop(event: DragEvent) {
-	event.preventDefault();
-	if (event.dataTransfer?.files) {
-		files = [...files, ...Array.from(event.dataTransfer.files)];
-	}
-}
+    function handleDrop(event: DragEvent) {
+        event.preventDefault();
+        if (event.dataTransfer?.files) {
+            files = [...files, ...Array.from(event.dataTransfer.files)];
+        }
+    }
 
-function handleDragOver(event: DragEvent) {
-	event.preventDefault();
-}
+    function handleDragOver(event: DragEvent) {
+        event.preventDefault();
+    }
 
-function removeFile(index: number) {
-	files = files.filter((_, i) => i !== index);
-}
+    function removeFile(index: number) {
+        files = files.filter((_, i) => i !== index);
+    }
 </script>
 
 <div class="phase-container">
-	<div class="checklist-section">
-		<h3>Signing & Activation</h3>
+    <div class="checklist-section">
+        <h3>Signing & Activation</h3>
 
-		{#each parties as party, i}
-			<div class="checklist-row">
-				<label class="custom-checkbox">
-					<input type="checkbox" bind:checked={party.done} />
-					<span class="checkmark"></span>
-				</label>
+        {#each parties as party, i}
+            <div class="checklist-row">
+                <label class="custom-checkbox">
+                    <input type="checkbox" bind:checked={party.done} />
+                    <span class="checkmark"></span>
+                </label>
 
-				<input
-					class="editable-text"
-					type="text"
-					bind:value={party.name}
-				/>
+                <input
+                    class="editable-text"
+                    type="text"
+                    bind:value={party.name}
+                    placeholder="Party Name"
+                />
 
-				<button class="delete-btn" onclick={() => removeParty(i)}>
-					×
-				</button>
-			</div>
-		{/each}
+                <button class="delete-btn" onclick={() => removeParty(i)}>
+                    ×
+                </button>
+            </div>
+        {/each}
 
-		<button class="add-button-field" onclick={addParty}>
-			+ Add Party
-		</button>
-	</div>
+        <button class="add-button-field" onclick={addParty}>
+            + Add Party
+        </button>
+    </div>
 
-	<!-- FILE UPLOAD -->
-<div class="upload-section">
-	<div class="upload-header">
-		<h3>Add Default Files</h3>
-	</div>
+    <!-- FILE UPLOAD -->
+    <div class="upload-section">
+        <div class="upload-header">
+            <h3>Add Default Files</h3>
+        </div>
 
-	<input 
-		type="file" 
-		multiple 
-		class="hidden-file-input" 
-		onchange={handleFileSelect} 
-	/>
+        <input 
+            type="file" 
+            multiple 
+            class="hidden-file-input" 
+            onchange={handleFileSelect} 
+        />
 
-	<div 
-		class="drop-zone"
-		role="button"
-		tabindex="0"
-		ondrop={handleDrop}
-		ondragover={handleDragOver}
-		onclick={() => (document.querySelector('.hidden-file-input') as HTMLInputElement)?.click()}
-		onkeydown={(e) => {
-			if (e.key === 'Enter' || e.key === ' ') {
-				(document.querySelector('.hidden-file-input') as HTMLInputElement)?.click();
-			}
-		}}
-	>
-		<p>
-			<button 
-				type="button"
-				class="blue-text"
-				onclick={(e) => {
-					e.stopPropagation();
-					(document.querySelector('.hidden-file-input') as HTMLInputElement)?.click();
-				}}
-			>
-				Choose file
-			</button>
-			to upload
-		</p>
-	</div>
+        <div 
+            class="drop-zone"
+            role="button"
+            tabindex="0"
+            ondrop={handleDrop}
+            ondragover={handleDragOver}
+            onclick={() => (document.querySelector('.hidden-file-input') as HTMLInputElement)?.click()}
+            onkeydown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    (document.querySelector('.hidden-file-input') as HTMLInputElement)?.click();
+                }
+            }}
+        >
+            <p>
+                <button 
+                    type="button"
+                    class="blue-text"
+                    onclick={(e) => {
+                        e.stopPropagation();
+                        (document.querySelector('.hidden-file-input') as HTMLInputElement)?.click();
+                    }}
+                >
+                    Choose file
+                </button>
+                to upload
+            </p>
+        </div>
 
-	{#if files.length > 0}
-		<div class="uploaded-files">
-			<h4>Uploaded Files</h4>
-			{#each files as file, i}
-				<div class="file-item">
-					{file.name}
-					<button onclick={() => removeFile(i)}>×</button>
-				</div>
-			{/each}
-		</div>
-	{/if}
+        {#if files.length > 0}
+            <div class="uploaded-files">
+                <h4>Uploaded Files</h4>
+                {#each files as file, i}
+                    <div class="file-item">
+                        {file.name}
+                        <button onclick={() => removeFile(i)}>×</button>
+                    </div>
+                {/each}
+            </div>
+        {/if}
+    </div>
+
+    <div class="pagenav">
+        <button class="back" onclick={handleback}>Return to <br/> Review and Approval</button>
+        <button class="next" onclick={validateBeforeConfirm}>Proceed to <br> Postwork </button>
+    </div>
 </div>
 
-	<div class="pagenav">
-		<button class="back" onclick={handleback}>Return to <br/> Review and Approval</button>
-		<button class="next" onclick={validateBeforeConfirm}>Proceed to <br> Postwork </button>
-	</div>
-</div>
 {#if showError}
 <div class="modal-backdrop">
     <div class="modal">
@@ -181,321 +187,301 @@ function removeFile(index: number) {
     </div>
 </div>
 {/if}
+
 {#if showConfirmModal}
 <div class="modal-overlay">
     <div class="modal-content">
         <h3>Confirmation</h3>
-
         <p>
             Are you sure you want to proceed to the Signing and Activation phase?
         </p>
-
         <div class="modal-actions">
-
-            <button
-                class="cancel-button"
-                onclick={() => showConfirmModal = false}
-            >
+            <button class="cancel-button" onclick={() => showConfirmModal = false}>
                 Cancel
             </button>
-
-            <button
-                class="import-button"
-                onclick={handleNext}
-            >
+            <button class="import-button" onclick={handleNext}>
                 Confirm & Proceed
             </button>
-
         </div>
     </div>
 </div>
 {/if}
 
-
 <style>
-	
-	.upload-header {
-		display: flex;
-		justify-content: space-between;
-		align-items: flex-start;
-	}
+    .upload-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+    }
 
-	.phase-container {
-		display: grid;
-		grid-template-columns: 1fr 1fr;
-		gap: 60px;
-		font-family: sans-serif;
-	}
+    .phase-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 60px;
+        font-family: sans-serif;
+    }
 
-	h3 {
-		font-size: 1rem;
-		margin-bottom: 20px;
-		font-weight: bold;
-	}
+    h3 {
+        font-size: 1rem;
+        margin-bottom: 20px;
+        font-weight: bold;
+    }
 
-	.checklist-section {
-		display: flex;
-		flex-direction: column;
-		gap: 20px;
-	}
+    .checklist-section {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
 
-	.checklist-row {
-		display: flex;
-		align-items: center;
-		gap: 12px;
-	}
+    .checklist-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
 
-	.custom-checkbox {
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-}
+    .custom-checkbox {
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+    }
 
-.custom-checkbox input {
-    display: none;
-}
+    .custom-checkbox input {
+        display: none;
+    }
 
-.checkmark {
-    height: 20px;
-    width: 20px;
-    border: 2px solid #333;
-    border-radius: 4px;
-    display: inline-block;
-    position: relative;
-    cursor: pointer;
-    flex-shrink: 0; /* prevents shrinking inside flex */
-}
+    .checkmark {
+        height: 20px;
+        width: 20px;
+        border: 2px solid #333;
+        border-radius: 4px;
+        display: inline-block;
+        position: relative;
+        cursor: pointer;
+        flex-shrink: 0; 
+    }
 
-.custom-checkbox input:checked + .checkmark {
-    background-color: #333;
-}
+    .custom-checkbox input:checked + .checkmark {
+        background-color: #333;
+    }
 
-.custom-checkbox input:checked + .checkmark:after {
-    content: "";
-    position: absolute;
-    left: 6px;
-    top: 2px;
-    width: 5px;
-    height: 10px;
-    border: solid white;
-    border-width: 0 2px 2px 0;
-    transform: rotate(45deg);
-}
+    .custom-checkbox input:checked + .checkmark:after {
+        content: "";
+        position: absolute;
+        left: 6px;
+        top: 2px;
+        width: 5px;
+        height: 10px;
+        border: solid white;
+        border-width: 0 2px 2px 0;
+        transform: rotate(45deg);
+    }
 
-	.editable-text {
-		flex: 1;
-		border: 1px solid #e5e7eb;
-		border-radius: 6px;
-		padding: 6px 10px;
-		font-size: 0.95rem;
-	}
+    .editable-text {
+        flex: 1;
+        border: 1px solid #e5e7eb;
+        border-radius: 6px;
+        padding: 6px 10px;
+        font-size: 0.95rem;
+    }
 
-	.delete-btn {
-		background: #f3f4f6;
-		border: none;
-		border-radius: 6px;
-		padding: 4px 10px;
-		cursor: pointer;
-		font-weight: bold;
-		color: #555;
-	}
+    .delete-btn {
+        background: #f3f4f6;
+        border: none;
+        border-radius: 6px;
+        padding: 4px 10px;
+        cursor: pointer;
+        font-weight: bold;
+        color: #555;
+    }
+    
+    .delete-btn:hover {
+        background: #e5e7eb;
+    }
 
-	.add-button-field {
-		background-color: #7a1a1a;
-		color: white;
-		border: none;
-		padding: 10px 24px;
-		border-radius: 50px;
-		font-weight: bold;
-		cursor: pointer;
-		width: fit-content;
-	}
+    .add-button-field {
+        background-color: #7a1a1a;
+        color: white;
+        border: none;
+        padding: 10px 24px;
+        border-radius: 50px;
+        font-weight: bold;
+        cursor: pointer;
+        width: fit-content;
+    }
 
-	.drop-zone {
-		border: 1px dashed #d1d5db;
-		border-radius: 12px;
-		padding: 30px;
-		text-align: center;
-		background: #f9fafb;
-	}
+    .drop-zone {
+        border: 1px dashed #d1d5db;
+        border-radius: 12px;
+        padding: 30px;
+        text-align: center;
+        background: #f9fafb;
+    }
 
-	.blue-text {
-		color: #3b00ff;
-		font-weight: bold;
-		cursor: pointer;
-	}
+    .blue-text {
+        background: none;
+        border: none;
+        padding: 0;
+        font: inherit;
+        color: #3b00ff;
+        font-weight: bold;
+        cursor: pointer;
+    }
 
-	.cancel-button {
-		border: 1px solid #e5e7eb;
-		padding: 10px 30px;
-		border-radius: 8px;
-	}
-	.import-button {
-		background: #3b00ff;
-		color: white;
-		border: none;
-		padding: 10px 35px;
-		border-radius: 8px;
-		font-weight: bold;
-	}
-	.next {
-  background-color: #7a1a1a; /* maroon */
-  color: white;
-  border: none;
-  flex: 0.14;
-  padding: 12px 40px;
-  border-radius: 9999px; /* fully rounded pill */
-  font-weight: bold;
-  cursor: pointer;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
-  transition: background-color 0.2s ease, transform 0.1s ease;
-}
-.back{
-	background-color: #7a1a1a; /* maroon */
-  color: white;
-  border: none;
-  flex: 0.14;
-  padding: 12px 40px;
-  border-radius: 9999px; /* fully rounded pill */
-  font-weight: bold;
-  cursor: pointer;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
-  transition: background-color 0.2s ease, transform 0.1s ease;
-}
+    .cancel-button {
+        background: white;
+        border: 1px solid #e5e7eb;
+        padding: 10px 30px;
+        border-radius: 8px;
+        cursor: pointer;
+    }
+    
+    .import-button {
+        background: #3b00ff;
+        color: white;
+        border: none;
+        padding: 10px 35px;
+        border-radius: 8px;
+        font-weight: bold;
+        cursor: pointer;
+    }
 
-.pagenav {
-  grid-column: 1 / -1;
-  display: flex;
-  justify-content: space-between;;
-  margin-top: 30px;
-}
+    .next {
+        background-color: #7a1a1a;
+        color: white;
+        border: none;
+        flex: 0.14;
+        padding: 12px 40px;
+        border-radius: 9999px; 
+        font-weight: bold;
+        cursor: pointer;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+        transition: background-color 0.2s ease, transform 0.1s ease;
+    }
+    
+    .back {
+        background-color: #7a1a1a; 
+        color: white;
+        border: none;
+        flex: 0.14;
+        padding: 12px 40px;
+        border-radius: 9999px; 
+        font-weight: bold;
+        cursor: pointer;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+        transition: background-color 0.2s ease, transform 0.1s ease;
+    }
 
-.next:hover {
-  background-color: #5a1313;
-}
+    .pagenav {
+        grid-column: 1 / -1;
+        display: flex;
+        justify-content: space-between;;
+        margin-top: 30px;
+    }
 
-.next:active {
-  transform: scale(0.97);
-}
+    .next:hover, .back:hover {
+        background-color: #5a1313;
+    }
 
-.modal-backdrop{
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.45);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    z-index:1000;
-}
+    .next:active, .back:active {
+        transform: scale(0.97);
+    }
 
-.modal-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.4);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
+    .modal-backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.4);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+    }
 
-.modal {
-  background: white;
-  padding: 25px 30px;
-  border-radius: 12px;
-  max-width: 360px;
-  text-align: center;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-}
+    .modal {
+        background: white;
+        padding: 25px 30px;
+        border-radius: 12px;
+        max-width: 360px;
+        text-align: center;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    }
 
-.modal h4 {
-  margin-bottom: 10px;
-  font-size: 1.1rem;
-}
+    .modal h4 {
+        margin-bottom: 10px;
+        font-size: 1.1rem;
+    }
 
-.modal p {
-  font-size: 0.95rem;
-  color: #555;
-  margin-bottom: 20px;
-}
+    .modal p {
+        font-size: 0.95rem;
+        color: #555;
+        margin-bottom: 20px;
+    }
 
-.modal-btn {
-  background: #7a1a1a;
-  color: white;
-  border: none;
-  padding: 8px 28px;
-  border-radius: 9999px;
-  font-weight: bold;
-  cursor: pointer;
-}
-.modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0,0,0,0.5);
+    .modal-btn {
+        background: #7a1a1a;
+        color: white;
+        border: none;
+        padding: 8px 28px;
+        border-radius: 9999px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+    
+    .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0,0,0,0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+    }
 
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    .modal-content {
+        background: white;
+        padding: 30px;
+        border-radius: 12px;
+        width: 400px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        text-align: center;
+    }
 
-    z-index: 1000;
-}
+    .modal-content h3 {
+        margin-top: 0;
+        margin-bottom: 15px;
+        color: #7a1a1a;
+    }
 
-.modal-content {
-    background: white;
-    padding: 30px;
-    border-radius: 12px;
-    width: 400px;
+    .modal-content p {
+        color: #4b5563;
+        margin-bottom: 25px;
+        line-height: 1.5;
+    }
 
-    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-    text-align: center;
-}
+    .modal-actions {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+    }
+    
+    .hidden-file-input {
+        display: none;
+    }
 
-.modal-content h3 {
-    margin-top: 0;
-    margin-bottom: 15px;
-    color: #7a1a1a;
-}
+    .uploaded-files {
+        margin-top: 20px;
+    }
 
-.modal-content p {
-    color: #4b5563;
-    margin-bottom: 25px;
-    line-height: 1.5;
-}
-
-.modal-actions {
-    display: flex;
-    justify-content: center;
-    gap: 15px;
-}
-.hidden-file-input {
-	display: none;
-}
-
-.uploaded-files {
-	margin-top: 20px;
-}
-
-.file-item {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	background: #f3f4f6;
-	padding: 8px 12px;
-	border-radius: 6px;
-	margin-bottom: 8px;
-	font-size: 0.9rem;
-}
-
-.blue-text {
-	background: none;
-	border: none;
-	padding: 0;
-	font: inherit;
-	color: #3b00ff;
-	font-weight: bold;
-	cursor: pointer;
-}
-
+    .file-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: #f3f4f6;
+        padding: 8px 12px;
+        border-radius: 6px;
+        margin-bottom: 8px;
+        font-size: 0.9rem;
+    }
 </style>
