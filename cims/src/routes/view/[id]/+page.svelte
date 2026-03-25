@@ -4,7 +4,7 @@
     let prework = $derived(data.prework || []);
     let approvals = $derived(data.approvals || { stages: [] });
     let activations = $derived(data.activations || []);
-    let postwork = $derived(data.postwork || []);
+    let postwork = $derived(data.postwork || { milestones: [], termination: { type: "", reason: "" } });
 </script>
 
 <div class="main-content">
@@ -100,9 +100,11 @@
 
     <div class="info-card">
         <h2>Postwork Details</h2>
-        {#if postwork && postwork.length > 0}
+        
+        <h3 class="stage-title">Milestones</h3>
+        {#if postwork.milestones && postwork.milestones.length > 0}
             <ul class="static-checklist">
-                {#each postwork as item}
+                {#each postwork.milestones as item}
                     <li>
                         <input type="checkbox" checked={item.done} disabled />
                         <span>{item.text}</span>
@@ -110,7 +112,23 @@
                 {/each}
             </ul>
         {:else}
-            <p class="empty-state">No postwork details found.</p>
+            <p class="empty-state">No milestones found.</p>
+        {/if}
+
+        {#if postwork.termination && (postwork.termination.type !== "" || postwork.termination.reason !== "")}
+            <div style="margin-top: 2rem; border-top: 1px solid #eee; padding-top: 1.5rem;">
+                <h3 class="stage-title" style="color: #d93025;">Termination Details</h3>
+                <div class="details-grid">
+                    <div class="detail-item">
+                        <span class="detail-label">Type</span>
+                        <span class="detail-value">{postwork.termination.type || 'N/A'}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Reason</span>
+                        <span class="detail-value">{postwork.termination.reason || 'N/A'}</span>
+                    </div>
+                </div>
+            </div>
         {/if}
     </div>
 </div>

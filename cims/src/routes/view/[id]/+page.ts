@@ -25,7 +25,7 @@ export async function load({ params }) {
     const prework = contract.contract_preworks?.[0]?.checklist || [];
     const approvals = contract.contract_approvals?.[0]?.checklist || { stages: [] }; 
     const activations = contract.contract_activations?.[0]?.parties || [];
-    const postwork = contract.contract_postworks?.[0]?.checklist || [];
+    const postwork = contract.contract_postworks?.[0]?.checklist || { milestones: [], termination: { type: "", reason: "" } };
 
     return {
         contract,
