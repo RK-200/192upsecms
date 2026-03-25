@@ -233,6 +233,7 @@
 		position: relative;
 		flex-shrink: 0;
 		cursor: pointer;
+		display: inline-block;
 	}
 
 	.custom-checkbox input:checked + .checkmark { background-color: #333; }

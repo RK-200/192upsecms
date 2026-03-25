@@ -6,12 +6,12 @@
     interface Props { data: any; }
     let { data = $bindable() }: Props = $props();
 
-    type Item = { text: string; details: string; };
+    type Item = { text: string; done: boolean; details: string };
 
     let checklist = $state<Item[]>(
         $contractStore.prework.checklist.length > 0
             ? $contractStore.prework.checklist.map((item: any) => ({ ...item, details: item.details || "" }))
-            : []
+            :[]
     );
     
     let lastWorkflowId = $state($contractStore.workflowId);
@@ -19,7 +19,7 @@
     $effect(() => {
         if ($contractStore.workflowId !== lastWorkflowId) {
             lastWorkflowId = $contractStore.workflowId;
-            checklist = ($contractStore.prework.checklist || []).map((item: any) => ({ 
+            checklist = ($contractStore.prework.checklist ||[]).map((item: any) => ({ 
                 ...item, 
                 details: item.details || "" 
             }));
@@ -33,26 +33,9 @@
 
     let showConfirmModal = $state(false);
     let isSaving = $state(false);
-    let showError = $state(false);
-    let errorMessage = $state("");
     let files = $state<File[]>([]);
 
-    function addField() {
-        checklist = [...checklist, { text: "New Field", details: "" }];
-    }
-    
-    function removeField(index: number) {
-        checklist = checklist.filter((_, i) => i !== index);
-    }
-
     function validateBeforeConfirm() {
-        const hasEmptyField = checklist.some(item => item.text.trim() === "");
-        if (hasEmptyField) {
-            errorMessage = "Checklist fields cannot be empty. Please fill in or remove empty fields.";
-            showError = true;
-            return;
-        }
-
         showConfirmModal = true;
     }
 
@@ -64,14 +47,14 @@
     function handleFileSelect(event: Event) {
         const input = event.target as HTMLInputElement;
         if (input.files) {
-            files = [...files, ...Array.from(input.files)];
+            files =[...files, ...Array.from(input.files)];
         }
     }
 
     function handleDrop(event: DragEvent) {
         event.preventDefault();
         if (event.dataTransfer?.files) {
-            files = [...files, ...Array.from(event.dataTransfer.files)];
+            files =[...files, ...Array.from(event.dataTransfer.files)];
         }
     }
 
@@ -87,40 +70,29 @@
 <div class="phase-container">
     <!-- CHECKLIST -->
     <div class="checklist-section">
-        <h3>Set Default Requirements</h3>
+        <h3>Requirements Checklist</h3>
 
         <div class="checklist-items">
             {#each checklist as item, i}
                 <div class="checklist-item-wrapper">
-                    <!-- MAIN ROW -->
+                    <!-- MAIN ROW  -->
                     <div class="checklist-row">
-                        <input
-                            class="editable-text main-input"
-                            type="text"
-                            bind:value={item.text}
-                            placeholder="Requirement Name"
-                        />
-
-                        <button class="delete-btn" onclick={() => removeField(i)}>
-                            ×
-                        </button>
+                        <div class="readonly-text main-input">
+                            {item.text || "Unnamed Requirement"}
+                        </div>
                     </div>
 
-                    <!-- DETAILS ROW -->
+                    <!-- DETAILS ROW  -->
                     <div class="details-row">
                         <input
                             class="editable-text details-input"
                             type="text"
                             bind:value={item.details}
-                            placeholder="Requirement Details..."
+                            placeholder="Add requirement details or context..."
                         />
                     </div>
                 </div>
             {/each}
-        </div>
-
-        <div class="button-row">
-            <button class="add-button-field" onclick={addField}>+ Add Field</button>
         </div>
     </div>
 
@@ -184,18 +156,6 @@
     </div>
 
     <!-- MODALS -->
-    {#if showError}
-        <div class="modal-backdrop">
-            <div class="modal">
-                <h4>Action Required</h4>
-                <p>{errorMessage}</p>
-                <button class="modal-btn" onclick={() => showError = false}>
-                    OK
-                </button>
-            </div>
-        </div>
-    {/if}
-
     {#if showConfirmModal}
         <div class="modal-overlay">
             <div class="modal-content">
@@ -258,8 +218,19 @@
 
     .details-row {
         display: flex;
-        padding-left: 24px;
-        padding-right: 42px; 
+        padding-left: 10px;
+    }
+
+    .readonly-text {
+        flex: 1;
+        border: 1px solid #e5e7eb;
+        background-color: #f3f4f6;
+        color: #4b5563;
+        border-radius: 6px;
+        padding: 8px 10px;
+        font-size: 0.95rem;
+        font-weight: 500;
+        cursor: not-allowed;
     }
 
     .editable-text {
@@ -271,45 +242,13 @@
     }
 
     .details-input {
-        background-color: #fafafa;
+        background-color: #ffffff;
         font-size: 0.9rem;
     }
 
     .details-input::placeholder {
         color: #9ca3af;
         font-style: italic;
-    }
-
-    .delete-btn {
-        background: #f3f4f6;
-        border: none;
-        border-radius: 6px;
-        padding: 6px 12px;
-        cursor: pointer;
-        font-weight: bold;
-        color: #555;
-        font-size: 1rem;
-    }
-
-    .delete-btn:hover {
-        background: #e5e7eb;
-        color: #d9534f;
-    }
-
-    .button-row {
-        display: flex;
-        justify-content: flex-start;
-    }
-
-    .add-button-field {
-        background-color: #7a1a1a; 
-        color: white;
-        border: none;
-        padding: 10px 24px;
-        border-radius: 50px;
-        font-weight: bold;
-        cursor: pointer;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     }
 
     .upload-header {
@@ -325,12 +264,6 @@
         padding: 30px;
         text-align: center;
         margin-bottom: 15px;
-    }
-
-    .blue-text {
-        color: #3b00ff;
-        font-weight: bold;
-        cursor: pointer;
     }
 
     .cancel-button {
@@ -377,46 +310,6 @@
 
     .next:active {
         transform: scale(0.97);
-    }
-
-    .modal-backdrop {
-        position: fixed;
-        inset: 0;
-        background: rgba(0, 0, 0, 0.4);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 1000;
-    }
-
-    .modal {
-        background: white;
-        padding: 25px 30px;
-        border-radius: 12px;
-        max-width: 360px;
-        text-align: center;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-    }
-
-    .modal h4 {
-        margin-bottom: 10px;
-        font-size: 1.1rem;
-    }
-
-    .modal p {
-        font-size: 0.95rem;
-        color: #555;
-        margin-bottom: 20px;
-    }
-
-    .modal-btn {
-        background: #7a1a1a;
-        color: white;
-        border: none;
-        padding: 8px 28px;
-        border-radius: 9999px;
-        font-weight: bold;
-        cursor: pointer;
     }
 
     .modal-overlay {
@@ -476,6 +369,18 @@
         border-radius: 6px;
         margin-bottom: 8px;
         font-size: 0.9rem;
+    }
+
+    .file-item button {
+        background: transparent;
+        border: none;
+        font-size: 1.2rem;
+        cursor: pointer;
+        color: #6b7280;
+    }
+
+    .file-item button:hover {
+        color: #dc2626;
     }
 
     .blue-text {

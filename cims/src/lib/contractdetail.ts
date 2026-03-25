@@ -3,7 +3,7 @@ import { supabase } from '$lib/supabaseInit';
 export interface ContractData {
     name: string;
     workflowId: string | null;
-    prework: { checklist: Array<{ text: string; done: boolean }> };
+    prework: { checklist: Array<{ text: string; details: string }> };
     approval: { stages: Array<{ name: string; items: Array<{ text: string; done: boolean }> }> };
     activation: { parties: Array<{ name: string; done: boolean }> };
     postwork: { milestones: Array<{ text: string; done: boolean }>; termination?: { type: string; reason: string } };

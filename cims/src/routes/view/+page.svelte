@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { onMount } from 'svelte'; 
     import {
         blur,
         crossfade,
@@ -23,10 +24,23 @@
     let isUpdating = $state(false);
     let targetContract = $state<any>(null);
     let pendingStatus = $state("");
+    
+    let existingTypes = $state<string[]>([]);
 
     let currentSort = $derived($page.url.searchParams.get('sort') || 'title-asc');
     let sortKey = $derived(currentSort.split('-')[0]);
     let sortAsc = $derived(currentSort.split('-')[1] === 'asc');
+
+    onMount(async () => {
+        const { data: contractData, error } = await supabase
+            .from('contracts')
+            .select('type');
+            
+        if (contractData && !error) {
+            const uniqueTypes =[...new Set(contractData.map(d => d.type).filter(Boolean))];
+            existingTypes = uniqueTypes as string[];
+        }
+    });
 
     function updateFilter(key: string, value: string) {
         const newUrl = new URL(window.location.href);
@@ -105,9 +119,9 @@
 
             <select class="filter-select" value={filters.type} onchange={(e) => updateFilter('type', e.currentTarget.value)}>
                 <option value="All">Type</option>
-                <option value="Memorandum of Agreement">MOA</option>
-                <option value="Scholarship">Scholarship</option>
-                <option value="Donation">Donations</option>
+                {#each existingTypes as type}
+                    <option value={type}>{type}</option>
+                {/each}
             </select>
 
             <select class="filter-select" value={filters.status} onchange={(e) => updateFilter('status', e.currentTarget.value)}>

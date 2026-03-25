@@ -36,7 +36,12 @@
 			<span class="nav-btn-txt">Edit Workflows</span>
 		</a>
 		
-		<a href="/contract" class="nav-btn">
+		<a href="/edit-contract" class="nav-btn">
+			<FilePlusCorner size={24} strokeWidth={2.5} />
+			<span class="nav-btn-txt">Edit Contract</span>
+		</a>
+
+		<a href="/create-contract" class="nav-btn">
 			<FilePlusCorner size={24} strokeWidth={2.5} />
 			<span class="nav-btn-txt">Create Contract</span>
 		</a>

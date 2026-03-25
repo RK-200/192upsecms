@@ -11,6 +11,8 @@
     let { data } = $props();
     let { access } = $derived(data); 
     
+    let currentPhase = $state('Prework'); 
+    
     onMount(async () => {
         const { data } = await getWorkflows();
         workflows = data || [];
@@ -58,7 +60,7 @@
             checklist: {} as any,
             milestones: [],
             contractType: "Scholarship",
-            contractStatus: "Draft"
+            contractStatus: "Active"
         }
     });
 
@@ -73,48 +75,48 @@
     function handleKeydown(event: KeyboardEvent) {
         if (event.key === 'Enter') saveName();
     }
-
-    async function saveContractToDB() {
+async function saveContractToDB() {
         isSaving = true;
-        contractData.title = ContractName;
-
-        const finalContractType = contractData.postwork.contractType || "Scholarship";
-        const finalContractStatus = contractData.postwork.contractStatus || "Active";
+        
+        // JS snapshot
+        const cleanData = $state.snapshot(contractData);
+        const finalTitle = ContractName;
+        const finalContractType = cleanData.postwork.contractType || "Scholarship";
+        const finalContractStatus = cleanData.postwork.contractStatus || "Active";
 
         try {
-            let contractId = contractData.id;
+            let contractId = cleanData.id;
 
             if (!contractId) {
-                // INSERT NEW CONTRACT
-                const { data: newContract, error } = await supabase
+                const { data: newContract, error: insertError } = await supabase
                     .from('contracts')
                     .insert({ 
-                        title: contractData.title, 
+                        title: finalTitle, 
                         type: finalContractType, 
                         status: finalContractStatus 
                     })
                     .select('id')
                     .single();
                 
-                if (error) throw error;
+                if (insertError) throw insertError;
                 contractId = newContract.id;
                 contractData.id = contractId; 
             } else {
-                // UPDATE EXISTING CONTRACT
-                const { error } = await supabase
+                const { error: updateError } = await supabase
                     .from('contracts')
                     .update({ 
-                        title: contractData.title,
+                        title: finalTitle,
                         type: finalContractType,
                         status: finalContractStatus
                     })
                     .eq('id', contractId);
                 
-                if (error) throw error;
+                if (updateError) throw updateError;
             }
 
+            if (!contractId) throw new Error("Contract ID could not be established.");
+
             const savePhase = async (tableName: string, payload: any) => {
-                //Check if row already exists
                 const { data: existingRow, error: fetchError } = await supabase
                     .from(tableName)
                     .select('id')
@@ -124,29 +126,26 @@
                 if (fetchError) throw fetchError;
 
                 if (existingRow) {
-                    // Exists, Update by Primary Key ID
                     return supabase.from(tableName).update(payload).eq('id', existingRow.id);
                 } else {
-                    //Doesn't exist, Insert new row
                     return supabase.from(tableName).insert({ contract_id: contractId, ...payload });
                 }
             };
 
             const results = await Promise.all([
-                savePhase('contract_preworks', { checklist: contractData.prework.checklist }),
-                savePhase('contract_approvals', { checklist: { stages: contractData.approval.checklist } }),
-                savePhase('contract_activations', { parties: contractData.activation.parties }),
-                savePhase('contract_postworks', { checklist: contractData.postwork.checklist })
+                savePhase('contract_preworks', { checklist: cleanData.prework.checklist }),
+                savePhase('contract_approvals', { checklist: { stages: cleanData.approval.checklist } }),
+                savePhase('contract_activations', { parties: cleanData.activation.parties }),
+                savePhase('contract_postworks', { checklist: cleanData.postwork.checklist })
             ]);
 
-            // Check if any phases failed to save
             const phasesError = results.find(res => res?.error)?.error;
             if (phasesError) throw phasesError;
 
             alert("Contract saved successfully!");
-        } catch (error) {
-            console.error("Error saving contract:", error);
-            alert("Failed to save the contract. Please check console for details.");
+        } catch (error: any) {
+            console.error("Detailed Saving Error:", error);
+            alert(`Save failed: ${error.message || "Internal Database Error"}`);
         } finally {
             isSaving = false;
         }
@@ -159,20 +158,27 @@
 <div class="main-content">
     <div class="sidebar">
         <h2>Create Contracts</h2>
-        <p>{Contractlist}</p>
         <!-- WORKFLOW SELECTOR -->
         <div class="template-selector">
-            <label for="workflow">Select Workflow Template:</label>
+            <label for="workflow">Workflow Template Selection:</label>
             <select 
                 id="workflow" 
                 bind:value={selectedWorkflowId} 
                 onchange={handleWorkflowSelect}
-                >
+                disabled={currentPhase !== 'Prework'} 
+                title={currentPhase !== 'Prework' ? "Template selection is locked after Prework stage" : ""}
+>
+            >
                 <option value="" disabled selected>Select a template...</option>
                 {#each workflows as wf}
                     <option value={wf.id}>{wf.name}</option>
                 {/each}
             </select>
+            
+            {#if currentPhase !== 'Prework'}
+                <span class="locked-text">🔒 Template selection is locked after Prework stage</span>
+            {/if}
+
             {#if isLoadingTemplate}
                 <span class="loading-text">Loading template data...</span>
             {/if}
@@ -202,7 +208,6 @@
                         <span>Rename</span>
                     </button>
                     
-                    <!-- SAVE TO DATABASE BUTTON -->
                     <button class="action-btn publish-btn" onclick={saveContractToDB} disabled={isSaving || !contractData.workflow_id}>
                         {#if isSaving}
                             <Loader2 size={16} class="spin" />
@@ -216,9 +221,8 @@
             {/if}
         </div>
 
-        <!-- PASS STATE TO MAIN PANEL -->
         {#if contractData.workflow_id}
-            <CreateContractMainPanel bind:contractData={contractData} />
+            <CreateContractMainPanel bind:contractData={contractData} bind:currentPhase={currentPhase} />
         {:else}
             <div class="empty-state">
                 <p>Please select a Workflow Template from the sidebar to begin.</p>
@@ -261,8 +265,28 @@
     .publish-btn:hover { background-color: #004494; }
 
     .template-selector { margin-top: 2rem; display: flex; flex-direction: column; gap: 0.5rem; }
-    .template-selector select { padding: 8px; border-radius: 6px; border: 1px solid #ccc; font-family: 'Poppins', sans-serif; }
+    
+    .template-selector select { 
+        padding: 8px; 
+        border-radius: 6px; 
+        border: 1px solid #ccc; 
+        font-family: 'Poppins', sans-serif; 
+    }
+    .template-selector select:disabled {
+        background-color: #e5e7eb;
+        color: #6b7280;
+        cursor: not-allowed;
+    }
+    
     .loading-text { font-size: 0.85rem; color: #666; font-style: italic; }
+    
+    .locked-text {
+        font-size: 0.8rem;
+        color: #991b1b;
+        font-weight: 600;
+        margin-top: 4px;
+    }
+
     .empty-state { text-align: center; color: #666; margin-top: 4rem; font-family: 'Poppins', sans-serif; }
     
     :global(.spin) { animation: spin 1s linear infinite; }
