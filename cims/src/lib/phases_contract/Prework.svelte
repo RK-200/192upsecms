@@ -6,12 +6,12 @@
     interface Props { data: any; }
     let { data = $bindable() }: Props = $props();
 
-    type Item = { text: string; details: string; };
+    type Item = { text: string; details: string; isCustom?: boolean };
 
     let checklist = $state<Item[]>(
         $contractStore.prework.checklist.length > 0
             ? $contractStore.prework.checklist.map((item: any) => ({ ...item, details: item.details || "" }))
-            : []
+            :[]
     );
     
     let lastWorkflowId = $state($contractStore.workflowId);
@@ -19,7 +19,7 @@
     $effect(() => {
         if ($contractStore.workflowId !== lastWorkflowId) {
             lastWorkflowId = $contractStore.workflowId;
-            checklist = ($contractStore.prework.checklist || []).map((item: any) => ({ 
+            checklist = ($contractStore.prework.checklist ||[]).map((item: any) => ({ 
                 ...item, 
                 details: item.details || "" 
             }));
@@ -38,7 +38,7 @@
     let files = $state<File[]>([]);
 
     function addField() {
-        checklist = [...checklist, { text: "New Field", details: "" }];
+        checklist =[...checklist, { text: "New Field", details: "", isCustom: true }];
     }
     
     function removeField(index: number) {
@@ -52,7 +52,6 @@
             showError = true;
             return;
         }
-
         showConfirmModal = true;
     }
 
@@ -63,21 +62,15 @@
 
     function handleFileSelect(event: Event) {
         const input = event.target as HTMLInputElement;
-        if (input.files) {
-            files = [...files, ...Array.from(input.files)];
-        }
+        if (input.files) { files =[...files, ...Array.from(input.files)]; }
     }
 
     function handleDrop(event: DragEvent) {
         event.preventDefault();
-        if (event.dataTransfer?.files) {
-            files = [...files, ...Array.from(event.dataTransfer.files)];
-        }
+        if (event.dataTransfer?.files) { files =[...files, ...Array.from(event.dataTransfer.files)]; }
     }
 
-    function handleDragOver(event: DragEvent) {
-        event.preventDefault();
-    }
+    function handleDragOver(event: DragEvent) { event.preventDefault(); }
 
     function removeFile(index: number) {
         files = files.filter((_, i) => i !== index);
@@ -85,35 +78,18 @@
 </script>
 
 <div class="phase-container">
-    <!-- CHECKLIST -->
     <div class="checklist-section">
         <h3>Set Default Requirements</h3>
 
         <div class="checklist-items">
             {#each checklist as item, i}
                 <div class="checklist-item-wrapper">
-                    <!-- MAIN ROW -->
                     <div class="checklist-row">
-                        <input
-                            class="editable-text main-input"
-                            type="text"
-                            bind:value={item.text}
-                            placeholder="Requirement Name"
-                        />
-
-                        <button class="delete-btn" onclick={() => removeField(i)}>
-                            ×
-                        </button>
+                        <input class="editable-text main-input" type="text" bind:value={item.text} placeholder="Requirement Name" />
+                        <button class="delete-btn" onclick={() => removeField(i)}>×</button>
                     </div>
-
-                    <!-- DETAILS ROW -->
                     <div class="details-row">
-                        <input
-                            class="editable-text details-input"
-                            type="text"
-                            bind:value={item.details}
-                            placeholder="Requirement Details..."
-                        />
+                        <input class="editable-text details-input" type="text" bind:value={item.details} placeholder="Requirement Details..." />
                     </div>
                 </div>
             {/each}
@@ -124,74 +100,37 @@
         </div>
     </div>
 
-    <!-- FILE UPLOAD -->
     <div class="upload-section">
         <div class="upload-header">
             <h3>Add Default Files</h3>
         </div>
 
-        <input 
-            type="file" 
-            multiple 
-            class="hidden-file-input" 
-            onchange={handleFileSelect} 
-        />
+        <input type="file" multiple class="hidden-file-input" onchange={handleFileSelect} />
 
-        <div 
-            class="drop-zone"
-            role="button"
-            tabindex="0"
-            ondrop={handleDrop}
-            ondragover={handleDragOver}
-            onclick={() => (document.querySelector('.hidden-file-input') as HTMLInputElement)?.click()}
-            onkeydown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                    (document.querySelector('.hidden-file-input') as HTMLInputElement)?.click();
-                }
-            }}
-        >
-            <p>
-                <button 
-                    type="button"
-                    class="blue-text"
-                    onclick={(e) => {
-                        e.stopPropagation();
-                        (document.querySelector('.hidden-file-input') as HTMLInputElement)?.click();
-                    }}
-                >
-                    Choose file
-                </button>
-                to upload
-            </p>
+        <div class="drop-zone" role="button" tabindex="0" ondrop={handleDrop} ondragover={handleDragOver} onclick={() => (document.querySelector('.hidden-file-input') as HTMLInputElement)?.click()} onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { (document.querySelector('.hidden-file-input') as HTMLInputElement)?.click(); } }}>
+            <p><button type="button" class="blue-text" onclick={(e) => { e.stopPropagation(); (document.querySelector('.hidden-file-input') as HTMLInputElement)?.click(); }}>Choose file</button> to upload</p>
         </div>
 
         {#if files.length > 0}
             <div class="uploaded-files">
                 <h4>Uploaded Files</h4>
                 {#each files as file, i}
-                    <div class="file-item">
-                        {file.name}
-                        <button onclick={() => removeFile(i)}>×</button>
-                    </div>
+                    <div class="file-item">{file.name} <button onclick={() => removeFile(i)}>×</button></div>
                 {/each}
             </div>
         {/if}
     </div>
 
-    <!-- PAGE NAVIGATION -->
     <div class="pagenav">
         <button class="next" onclick={validateBeforeConfirm}>Proceed to <br/> Approval and review</button>
     </div>
 
-    <!-- MODALS -->
     {#if showError}
         <div class="modal-backdrop">
             <div class="modal">
                 <h4>Action Required</h4>
                 <p>{errorMessage}</p>
-                <button class="modal-btn" onclick={() => showError = false}>
-                    OK
-                </button>
+                <button class="modal-btn" onclick={() => showError = false}>OK</button>
             </div>
         </div>
     {/if}
@@ -202,20 +141,8 @@
                 <h3>Confirmation</h3>
                 <p>Are you sure you want to proceed to the Review and Approval phase?</p>
                 <div class="modal-actions">
-                    <button
-                        class="cancel-button"
-                        onclick={() => showConfirmModal = false}
-                        disabled={isSaving}
-                    >
-                        Cancel
-                    </button>
-                    <button
-                        class="import-button"
-                        onclick={handleNext}
-                        disabled={isSaving}
-                    >
-                        Confirm & Proceed
-                    </button>
+                    <button class="cancel-button" onclick={() => showConfirmModal = false} disabled={isSaving}>Cancel</button>
+                    <button class="import-button" onclick={handleNext} disabled={isSaving}>Confirm & Proceed</button>
                 </div>
             </div>
         </div>
@@ -223,268 +150,194 @@
 </div>
 
 <style>
-    .phase-container {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 60px;
-        background: white;
-        font-family: sans-serif;
+    .phase-container { 
+        display: grid; 
+        grid-template-columns: 1fr 1fr; 
+        gap: 60px; 
+        background: white; 
+        font-family: sans-serif; 
     }
-
-    h3 {
-        font-size: 1rem;
-        margin-bottom: 20px;
-        font-weight: bold;
+    h3 { 
+        font-size: 1rem; 
+        margin-bottom: 20px; 
+        font-weight: bold; 
     }
-
-    .checklist-items {
-        display: flex;
-        flex-direction: column;
+    .checklist-items { 
+        display: flex; 
+        flex-direction: column; 
         gap: 20px; 
-        margin-bottom: 25px;
+        margin-bottom: 25px; 
     }
-
     .checklist-item-wrapper {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
+         display: flex; 
+         flex-direction: column; 
+         gap: 8px; 
+        }
+    .checklist-row { 
+        display: flex; 
+        align-items: center; 
+        gap: 12px; 
     }
-
-    .checklist-row {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-    }
-
-    .details-row {
-        display: flex;
-        padding-left: 24px;
+    .details-row { 
+        display: flex; 
+        padding-left: 24px; 
         padding-right: 42px; 
     }
-
-    .editable-text {
-        flex: 1;
+    .editable-text { 
+        flex: 1; 
         border: 1px solid #e5e7eb;
-        border-radius: 6px;
-        padding: 8px 10px;
-        font-size: 0.95rem;
-    }
-
+         border-radius: 6px;
+          padding: 8px 10px; 
+          font-size: 0.95rem; 
+        }
     .details-input {
-        background-color: #fafafa;
-        font-size: 0.9rem;
-    }
-
-    .details-input::placeholder {
-        color: #9ca3af;
+         background-color: #fafafa; 
+         font-size: 0.9rem; 
+        }
+    .details-input::placeholder { 
+        color: #9ca3af; 
         font-style: italic;
+     }
+    .delete-btn { 
+        background: #f3f4f6; 
+        border: none; 
+        border-radius: 6px; 
+        padding: 6px 12px; 
+        cursor: pointer; 
+        font-weight: bold; 
+        color: #555; 
+        font-size: 1rem; 
     }
-
-    .delete-btn {
-        background: #f3f4f6;
-        border: none;
-        border-radius: 6px;
-        padding: 6px 12px;
-        cursor: pointer;
-        font-weight: bold;
-        color: #555;
-        font-size: 1rem;
+    .delete-btn:hover { 
+        background: #e5e7eb; 
+        color: #d9534f; 
     }
-
-    .delete-btn:hover {
-        background: #e5e7eb;
-        color: #d9534f;
+    .button-row { 
+        display: flex; 
+        justify-content: flex-start; 
     }
-
-    .button-row {
-        display: flex;
-        justify-content: flex-start;
-    }
-
-    .add-button-field {
+    .add-button-field { 
         background-color: #7a1a1a; 
-        color: white;
-        border: none;
-        padding: 10px 24px;
-        border-radius: 50px;
+        color: white; 
+        border: none; 
+        padding: 10px 24px; 
+        border-radius: 50px; 
         font-weight: bold;
         cursor: pointer;
         box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+     }
+    .upload-header { 
+        display: flex; 
+        justify-content: space-between; 
+        align-items: flex-start; 
     }
-
-    .upload-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-    }
-
-    .drop-zone {
-        border: 1px dashed #d1d5db;
-        background-color: #f9fafb;
-        border-radius: 12px;
-        padding: 30px;
+    .drop-zone { 
+        border: 1px dashed #d1d5db; 
+        background-color: #f9fafb; 
+        border-radius: 12px; 
+        padding: 30px; 
         text-align: center;
-        margin-bottom: 15px;
+         margin-bottom: 15px; 
+        }
+    .blue-text { 
+        background: none; 
+        border: none; 
+        padding: 0; 
+        font: inherit; 
+        color: #3b00ff; 
+        font-weight: bold; 
+        cursor: pointer; 
     }
-
-    .blue-text {
-        color: #3b00ff;
-        font-weight: bold;
-        cursor: pointer;
-    }
-
-    .cancel-button {
+    .cancel-button { 
         background: white;
         border: 1px solid #e5e7eb;
-        padding: 10px 30px;
-        border-radius: 8px;
-        cursor: pointer;
-    }
-
-    .import-button {
+        padding: 10px 30px; border-radius: 8px; cursor: pointer; }
+    .import-button { 
         background: #3b00ff; 
         color: white;
         border: none;
         padding: 10px 35px;
-        border-radius: 8px;
-        font-weight: bold;
-        cursor: pointer;
+        border-radius: 8px; 
+        font-weight: bold; 
+        cursor: pointer; 
     }
-
-    .next {
+    .next { 
         flex: 0.14;
-        background-color: #7a1a1a;
-        color: white;
-        border: none;
-        padding: 12px 40px;
-        border-radius: 9999px;
-        font-weight: bold;
-        cursor: pointer;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
-        transition: background-color 0.2s ease, transform 0.1s ease;
+        background-color: #7a1a1a; 
+        color: white; 
+        border: none; 
+        padding: 12px 40px; 
+        border-radius: 9999px; 
+        font-weight: bold; 
+        cursor: pointer; 
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15); 
+        transition: background-color 0.2s ease, transform 0.1s ease; }
+    .pagenav { 
+        grid-column: 1 / -1; display: flex; 
+        justify-content: right; 
+        margin-top: 30px; 
     }
-
-    .pagenav {
-        grid-column: 1 / -1;
-        display: flex;
-        justify-content: right;
-        margin-top: 30px;
+    .next:hover { 
+        background-color: #5a1313; 
     }
-
-    .next:hover {
-        background-color: #5a1313;
-    }
-
     .next:active {
-        transform: scale(0.97);
-    }
-
-    .modal-backdrop {
-        position: fixed;
-        inset: 0;
-        background: rgba(0, 0, 0, 0.4);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 1000;
-    }
-
-    .modal {
-        background: white;
-        padding: 25px 30px;
-        border-radius: 12px;
-        max-width: 360px;
-        text-align: center;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-    }
-
-    .modal h4 {
-        margin-bottom: 10px;
-        font-size: 1.1rem;
-    }
-
-    .modal p {
-        font-size: 0.95rem;
-        color: #555;
-        margin-bottom: 20px;
-    }
-
-    .modal-btn {
+         transform: scale(0.97);
+         }
+    .modal-backdrop, .modal-overlay { 
+        position: fixed; 
+        inset: 0; 
+        background: rgba(0, 0, 0, 0.4); 
+        display: flex; 
+        align-items: center; 
+        justify-content: center; 
+        z-index: 1000; }
+    .modal, .modal-content {
+         background: white;
+          padding: 30px; 
+          border-radius: 12px;
+          max-width: 400px; 
+          text-align: center; 
+          box-shadow: 0 10px 25px rgba(0,0,0,0.2); 
+        }
+    .modal h4, .modal-content h3 {
+         margin-top: 0; 
+         margin-bottom: 15px;
+         color: #7a1a1a; 
+        }
+    .modal p, .modal-content p { 
+         font-size: 0.95rem;
+         color: #4b5563; 
+         margin-bottom: 25px; 
+         line-height: 1.5; 
+        }
+    .modal-btn { 
         background: #7a1a1a;
-        color: white;
-        border: none;
-        padding: 8px 28px;
-        border-radius: 9999px;
-        font-weight: bold;
-        cursor: pointer;
+         color: white; 
+         border: none; 
+         padding: 8px 28px;
+          border-radius: 9999px; 
+          font-weight: bold; 
+          cursor: pointer; 
     }
-
-    .modal-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        background: rgba(0,0,0,0.5);
-        display: flex;
+    .modal-actions { 
+        display: flex; 
         justify-content: center;
+         gap: 15px; 
+        }
+    .hidden-file-input { 
+        display: none; 
+    }
+    .uploaded-files { 
+        margin-top: 20px; 
+    }
+    .file-item { 
+        display: flex; 
+        justify-content: space-between; 
         align-items: center;
-        z-index: 1000;
-    }
-
-    .modal-content {
-        background: white;
-        padding: 30px;
-        border-radius: 12px;
-        width: 400px;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-        text-align: center;
-    }
-
-    .modal-content h3 {
-        margin-top: 0;
-        margin-bottom: 15px;
-        color: #7a1a1a;
-    }
-
-    .modal-content p {
-        color: #4b5563;
-        margin-bottom: 25px;
-        line-height: 1.5;
-    }
-
-    .modal-actions {
-        display: flex;
-        justify-content: center;
-        gap: 15px;
-    }
-
-    .hidden-file-input {
-        display: none;
-    }
-
-    .uploaded-files {
-        margin-top: 20px;
-    }
-
-    .file-item {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        background: #f3f4f6;
+         background: #f3f4f6;
         padding: 8px 12px;
-        border-radius: 6px;
+        border-radius: 6px; 
         margin-bottom: 8px;
-        font-size: 0.9rem;
-    }
-
-    .blue-text {
-        background: none;
-        border: none;
-        padding: 0;
-        font: inherit;
-        color: #3b00ff;
-        font-weight: bold;
-        cursor: pointer;
+         font-size: 0.9rem; 
     }
 </style>
