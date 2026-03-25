@@ -199,11 +199,6 @@ function removeFile(index: number) {
 		<div class="checklist-items">
 			{#each checklist as item, i}
 				<div class="checklist-row" transition:fly={{ x: -20, duration: 200 }}>
-					<label class="custom-checkbox">
-						<input type="checkbox" bind:checked={item.done} />
-						<span class="checkmark"></span>
-					</label>
-
                     {#if item.id}
                         <!-- Existing Database Requirement -->
                         <div class="editable-text readonly-text">{item.text}</div>
@@ -327,37 +322,6 @@ function removeFile(index: number) {
 		display: flex;
 		align-items: center;
 		gap: 12px;
-	}
-
-	.custom-checkbox input {
-		display: none;
-	}
-
-	.checkmark {
-		height: 20px;
-		width: 20px;
-		border: 2px solid #333;
-		border-radius: 4px;
-		display: inline-block;
-		position: relative;
-		cursor: pointer;
-        flex-shrink: 0;
-	}
-
-	.custom-checkbox input:checked + .checkmark {
-		background-color: #333;
-	}
-
-	.custom-checkbox input:checked + .checkmark:after {
-		content: "";
-		position: absolute;
-		left: 6px;
-		top: 2px;
-		width: 5px;
-		height: 10px;
-		border: solid white;
-		border-width: 0 2px 2px 0;
-		transform: rotate(45deg);
 	}
 
 	.editable-text {

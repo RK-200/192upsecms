@@ -1,19 +1,19 @@
 <script lang="ts">
     import { createEventDispatcher } from "svelte";
-	import { contractStore } from '$lib/contractdetail';
+    import { contractStore } from '$lib/contractdetail';
     const dispatch = createEventDispatcher();
 
     interface Props { data: any; }
     let { data = $bindable() }: Props = $props();
 
-    type Item = { text: string; done: boolean };
+    type Item = { text: string; done: boolean; details: string };
 
-	let checklist = $state<Item[]>(
-    $contractStore.prework.checklist.length > 0
-        ? [...$contractStore.prework.checklist]
-        : []
-	);
-	
+    let checklist = $state<Item[]>(
+        $contractStore.prework.checklist.length > 0
+            ? $contractStore.prework.checklist.map((item: any) => ({ ...item, details: item.details || "" }))
+            : []
+    );
+    
     $effect(() => {
         contractStore.update(s => ({ ...s, prework: { checklist } }));
     });
@@ -22,26 +22,20 @@
     let isSaving = $state(false);
     let showError = $state(false);
     let errorMessage = $state("");
-	let files = $state<File[]>([]);
+    let files = $state<File[]>([]);
 
     function addField() {
-        checklist =[...checklist, { text: "New Field", done: false }];
+        checklist = [...checklist, { text: "New Field", done: false, details: "" }];
     }
-	function removeField(index: number) {
-    checklist = checklist.filter((_, i) => i !== index);
-  }
+    
+    function removeField(index: number) {
+        checklist = checklist.filter((_, i) => i !== index);
+    }
 
     function validateBeforeConfirm() {
         const hasEmptyField = checklist.some(item => item.text.trim() === "");
         if (hasEmptyField) {
             errorMessage = "Checklist fields cannot be empty. Please fill in or remove empty fields.";
-            showError = true;
-            return;
-        }
-
-        const hasCheckedItem = checklist.some(item => item.done);
-        if (!hasCheckedItem) {
-            errorMessage = "Please check at least one requirement before proceeding.";
             showError = true;
             return;
         }
@@ -54,434 +48,430 @@
         dispatch("next");
     }
 
-	  function handleFileSelect(event: Event) {
-    const input = event.target as HTMLInputElement;
-    if (input.files) {
-        files = [...files, ...Array.from(input.files)];
+    function handleFileSelect(event: Event) {
+        const input = event.target as HTMLInputElement;
+        if (input.files) {
+            files = [...files, ...Array.from(input.files)];
+        }
     }
-}
 
-function handleDrop(event: DragEvent) {
-    event.preventDefault();
-    if (event.dataTransfer?.files) {
-        files = [...files, ...Array.from(event.dataTransfer.files)];
+    function handleDrop(event: DragEvent) {
+        event.preventDefault();
+        if (event.dataTransfer?.files) {
+            files = [...files, ...Array.from(event.dataTransfer.files)];
+        }
     }
-}
 
-function handleDragOver(event: DragEvent) {
-    event.preventDefault();
-}
+    function handleDragOver(event: DragEvent) {
+        event.preventDefault();
+    }
 
-function removeFile(index: number) {
-    files = files.filter((_, i) => i !== index);
-}
+    function removeFile(index: number) {
+        files = files.filter((_, i) => i !== index);
+    }
 </script>
 
 <div class="phase-container">
-	<!-- CHECKLIST -->
-	<div class="checklist-section">
-		<h3>Set Default Requirements</h3>
+    <!-- CHECKLIST -->
+    <div class="checklist-section">
+        <h3>Set Default Requirements</h3>
 
-		<div class="checklist-items">
-			{#each checklist as item, i}
-				<div class="checklist-row">
-					<label class="custom-checkbox">
-						<input type="checkbox" bind:checked={item.done} />
-						<span class="checkmark"></span>
-					</label>
+        <div class="checklist-items">
+            {#each checklist as item, i}
+                <div class="checklist-item-wrapper">
+                    <!-- MAIN ROW -->
+                    <div class="checklist-row">
+                        <input
+                            class="editable-text main-input"
+                            type="text"
+                            bind:value={item.text}
+                            placeholder="Requirement Name"
+                        />
 
-					<input
-						class="editable-text"
-						type="text"
-						bind:value={item.text}
-					/>
+                        <button class="delete-btn" onclick={() => removeField(i)}>
+                            ×
+                        </button>
+                    </div>
 
-					<button class="delete-btn" onclick={() => removeField(i)}>
-						×
-					</button>
-				</div>
-			{/each}
-		</div>
+                    <!-- DETAILS ROW -->
+                    <div class="details-row">
+                        <input
+                            class="editable-text details-input"
+                            type="text"
+                            bind:value={item.details}
+                            placeholder="Requirement Details..."
+                        />
+                    </div>
+                </div>
+            {/each}
+        </div>
 
-		<div class="button-row">
-			<button class="add-button-field" onclick={addField}>+ Add Field</button>
-		</div>
-	</div>
-
-	<!-- FILE UPLOAD -->
-	<div class="upload-section">
-	<div class="upload-header">
-		<h3>Add Default Files</h3>
-	</div>
-
-	<input 
-		type="file" 
-		multiple 
-		class="hidden-file-input" 
-		onchange={handleFileSelect} 
-	/>
-
-	<div 
-		class="drop-zone"
-		role="button"
-		tabindex="0"
-		ondrop={handleDrop}
-		ondragover={handleDragOver}
-		onclick={() => (document.querySelector('.hidden-file-input') as HTMLInputElement)?.click()}
-		onkeydown={(e) => {
-			if (e.key === 'Enter' || e.key === ' ') {
-				(document.querySelector('.hidden-file-input') as HTMLInputElement)?.click();
-			}
-		}}
-	>
-		<p>
-			<button 
-				type="button"
-				class="blue-text"
-				onclick={(e) => {
-					e.stopPropagation();
-					(document.querySelector('.hidden-file-input') as HTMLInputElement)?.click();
-				}}
-			>
-				Choose file
-			</button>
-			to upload
-		</p>
-	</div>
-
-	{#if files.length > 0}
-		<div class="uploaded-files">
-			<h4>Uploaded Files</h4>
-			{#each files as file, i}
-				<div class="file-item">
-					{file.name}
-					<button onclick={() => removeFile(i)}>×</button>
-				</div>
-			{/each}
-		</div>
-	{/if}
-</div>
-	<div class="pagenav">
-		<button class="next" onclick={(validateBeforeConfirm)}>Proceed to <br/> Approval and review</button>
-	</div>
-
-{#if showError}
-  <div class="modal-backdrop">
-    <div class="modal">
-      <h4>Action Required</h4>
-      <p>{errorMessage}</p>
-      <button class="modal-btn" onclick={() => showError = false}>
-        OK
-      </button>
-    </div>
-  </div>
-{/if}
-{#if showConfirmModal}
-<div class="modal-overlay">
-    <div class="modal-content">
-        <h3>Confirmation</h3>
-
-        <p>
-            Are you sure you want to proceed to the Review and Approval phase?
-        </p>
-
-        <div class="modal-actions">
-            <button
-                class="cancel-button"
-                onclick={() => showConfirmModal = false}
-                disabled={isSaving}
-            >
-                Cancel
-            </button>
-
-            <button
-                class="import-button"
-                onclick={handleNext}
-                disabled={isSaving}
-            >
-                Confirm & Proceed
-            </button>
+        <div class="button-row">
+            <button class="add-button-field" onclick={addField}>+ Add Field</button>
         </div>
     </div>
-</div>
-{/if}
+
+    <!-- FILE UPLOAD -->
+    <div class="upload-section">
+        <div class="upload-header">
+            <h3>Add Default Files</h3>
+        </div>
+
+        <input 
+            type="file" 
+            multiple 
+            class="hidden-file-input" 
+            onchange={handleFileSelect} 
+        />
+
+        <div 
+            class="drop-zone"
+            role="button"
+            tabindex="0"
+            ondrop={handleDrop}
+            ondragover={handleDragOver}
+            onclick={() => (document.querySelector('.hidden-file-input') as HTMLInputElement)?.click()}
+            onkeydown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    (document.querySelector('.hidden-file-input') as HTMLInputElement)?.click();
+                }
+            }}
+        >
+            <p>
+                <button 
+                    type="button"
+                    class="blue-text"
+                    onclick={(e) => {
+                        e.stopPropagation();
+                        (document.querySelector('.hidden-file-input') as HTMLInputElement)?.click();
+                    }}
+                >
+                    Choose file
+                </button>
+                to upload
+            </p>
+        </div>
+
+        {#if files.length > 0}
+            <div class="uploaded-files">
+                <h4>Uploaded Files</h4>
+                {#each files as file, i}
+                    <div class="file-item">
+                        {file.name}
+                        <button onclick={() => removeFile(i)}>×</button>
+                    </div>
+                {/each}
+            </div>
+        {/if}
+    </div>
+
+    <!-- PAGE NAVIGATION -->
+    <div class="pagenav">
+        <button class="next" onclick={validateBeforeConfirm}>Proceed to <br/> Approval and review</button>
+    </div>
+
+    <!-- MODALS -->
+    {#if showError}
+        <div class="modal-backdrop">
+            <div class="modal">
+                <h4>Action Required</h4>
+                <p>{errorMessage}</p>
+                <button class="modal-btn" onclick={() => showError = false}>
+                    OK
+                </button>
+            </div>
+        </div>
+    {/if}
+
+    {#if showConfirmModal}
+        <div class="modal-overlay">
+            <div class="modal-content">
+                <h3>Confirmation</h3>
+                <p>Are you sure you want to proceed to the Review and Approval phase?</p>
+                <div class="modal-actions">
+                    <button
+                        class="cancel-button"
+                        onclick={() => showConfirmModal = false}
+                        disabled={isSaving}
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        class="import-button"
+                        onclick={handleNext}
+                        disabled={isSaving}
+                    >
+                        Confirm & Proceed
+                    </button>
+                </div>
+            </div>
+        </div>
+    {/if}
 </div>
 
 <style>
-	.phase-container {
-		display: grid;
-		grid-template-columns: 1fr 1fr;
-		gap: 60px;
-		background: white;
-		font-family: sans-serif;
-	}
+    .phase-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 60px;
+        background: white;
+        font-family: sans-serif;
+    }
 
-	h3 {
-		font-size: 1rem;
-		margin-bottom: 20px;
-		font-weight: bold;
-	}
+    h3 {
+        font-size: 1rem;
+        margin-bottom: 20px;
+        font-weight: bold;
+    }
 
-	.checklist-items {
-		display: flex;
-		flex-direction: column;
-		gap: 15px;
-		margin-bottom: 25px;
-	}
+    .checklist-items {
+        display: flex;
+        flex-direction: column;
+        gap: 20px; 
+        margin-bottom: 25px;
+    }
 
-	.checklist-row {
-		display: flex;
-		align-items: center;
-		gap: 12px;
-	}
+    .checklist-item-wrapper {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
 
-	.custom-checkbox {
-    	display: flex;
-    	align-items: center;
-    	cursor: pointer;
-	}
+    .checklist-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
 
-	.custom-checkbox input {
-    	display: none;
-	}
+    .details-row {
+        display: flex;
+        padding-left: 24px;
+        padding-right: 42px; 
+    }
 
-	.checkmark {
-    	height: 20px;
-    	width: 20px;
-    	border: 2px solid #333;
-    	border-radius: 4px;
-    	display: inline-block;
-    	position: relative;
-    	cursor: pointer;
-    	flex-shrink: 0; /* prevents shrinking inside flex */
-	}
+    .editable-text {
+        flex: 1;
+        border: 1px solid #e5e7eb;
+        border-radius: 6px;
+        padding: 8px 10px;
+        font-size: 0.95rem;
+    }
 
-	.custom-checkbox input:checked + .checkmark {
-    	background-color: #333;
-	}
+    .details-input {
+        background-color: #fafafa;
+        font-size: 0.9rem;
+    }
 
-	.custom-checkbox input:checked + .checkmark:after {
-    	content: "";
-    	position: absolute;
-    	left: 6px;
-    	top: 2px;
-    	width: 5px;
-    	height: 10px;
-    	border: solid white;
-    	border-width: 0 2px 2px 0;
-    	transform: rotate(45deg);
-	}
-	
-	.editable-text {
-		flex: 1;
-		border: 1px solid #e5e7eb;
-		border-radius: 6px;
-		padding: 6px 10px;
-		font-size: 0.95rem;
-	}
+    .details-input::placeholder {
+        color: #9ca3af;
+        font-style: italic;
+    }
 
-	.delete-btn {
-		background: #f3f4f6;
-		border: none;
-		border-radius: 6px;
-		padding: 4px 10px;
-		cursor: pointer;
-		font-weight: bold;
-		color: #555;
-	}
+    .delete-btn {
+        background: #f3f4f6;
+        border: none;
+        border-radius: 6px;
+        padding: 6px 12px;
+        cursor: pointer;
+        font-weight: bold;
+        color: #555;
+        font-size: 1rem;
+    }
 
-	.delete-btn:hover {
-		background: #e5e7eb;
-	}
+    .delete-btn:hover {
+        background: #e5e7eb;
+        color: #d9534f;
+    }
 
-	.button-row {
-		display: flex;
-		justify-content: flex-start;
-	}
+    .button-row {
+        display: flex;
+        justify-content: flex-start;
+    }
 
-	.add-button-field {
-		background-color: #7a1a1a; 
-		color: white;
-		border: none;
-		padding: 10px 24px;
-		border-radius: 50px;
-		font-weight: bold;
-		cursor: pointer;
-		box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-	}
+    .add-button-field {
+        background-color: #7a1a1a; 
+        color: white;
+        border: none;
+        padding: 10px 24px;
+        border-radius: 50px;
+        font-weight: bold;
+        cursor: pointer;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
 
-	.upload-header {
-		display: flex;
-		justify-content: space-between;
-		align-items: flex-start;
-	}
+    .upload-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+    }
 
-	.drop-zone {
-		border: 1px dashed #d1d5db;
-		background-color: #f9fafb;
-		border-radius: 12px;
-		padding: 30px;
-		text-align: center;
-		margin-bottom: 15px;
-	}
+    .drop-zone {
+        border: 1px dashed #d1d5db;
+        background-color: #f9fafb;
+        border-radius: 12px;
+        padding: 30px;
+        text-align: center;
+        margin-bottom: 15px;
+    }
 
-	.blue-text {
-		color: #3b00ff;
-		font-weight: bold;
-		cursor: pointer;
-	}
+    .blue-text {
+        color: #3b00ff;
+        font-weight: bold;
+        cursor: pointer;
+    }
 
-	.cancel-button {
-		background: white;
-		border: 1px solid #e5e7eb;
-		padding: 10px 30px;
-		border-radius: 8px;
-		cursor: pointer;
-	}
+    .cancel-button {
+        background: white;
+        border: 1px solid #e5e7eb;
+        padding: 10px 30px;
+        border-radius: 8px;
+        cursor: pointer;
+    }
 
-	.import-button {
-		background: #3b00ff; 
-		color: white;
-		border: none;
-		padding: 10px 35px;
-		border-radius: 8px;
-		font-weight: bold;
-		cursor: pointer;
-	}
-	.next {
-		flex: 0.14;
-  background-color: #7a1a1a; /* maroon */
-  color: white;
-  border: none;
-  padding: 12px 40px;
-  border-radius: 9999px; /* fully rounded pill */
-  font-weight: bold;
-  cursor: pointer;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
-  transition: background-color 0.2s ease, transform 0.1s ease;
-}
-.pagenav {
-  grid-column: 1 / -1;
-  display: flex;
-  justify-content: right;
-  margin-top: 30px;
-}
+    .import-button {
+        background: #3b00ff; 
+        color: white;
+        border: none;
+        padding: 10px 35px;
+        border-radius: 8px;
+        font-weight: bold;
+        cursor: pointer;
+    }
 
-.next:hover {
-  background-color: #5a1313;
-}
+    .next {
+        flex: 0.14;
+        background-color: #7a1a1a;
+        color: white;
+        border: none;
+        padding: 12px 40px;
+        border-radius: 9999px;
+        font-weight: bold;
+        cursor: pointer;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+        transition: background-color 0.2s ease, transform 0.1s ease;
+    }
 
-.next:active {
-  transform: scale(0.97);
-}
-.modal-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.4);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
+    .pagenav {
+        grid-column: 1 / -1;
+        display: flex;
+        justify-content: right;
+        margin-top: 30px;
+    }
 
-.modal {
-  background: white;
-  padding: 25px 30px;
-  border-radius: 12px;
-  max-width: 360px;
-  text-align: center;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-}
+    .next:hover {
+        background-color: #5a1313;
+    }
 
-.modal h4 {
-  margin-bottom: 10px;
-  font-size: 1.1rem;
-}
+    .next:active {
+        transform: scale(0.97);
+    }
 
-.modal p {
-  font-size: 0.95rem;
-  color: #555;
-  margin-bottom: 20px;
-}
+    .modal-backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.4);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+    }
 
-.modal-btn {
-  background: #7a1a1a;
-  color: white;
-  border: none;
-  padding: 8px 28px;
-  border-radius: 9999px;
-  font-weight: bold;
-  cursor: pointer;
-}
-.modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0,0,0,0.5);
+    .modal {
+        background: white;
+        padding: 25px 30px;
+        border-radius: 12px;
+        max-width: 360px;
+        text-align: center;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    }
 
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    .modal h4 {
+        margin-bottom: 10px;
+        font-size: 1.1rem;
+    }
 
-    z-index: 1000;
-}
+    .modal p {
+        font-size: 0.95rem;
+        color: #555;
+        margin-bottom: 20px;
+    }
 
-.modal-content {
-    background: white;
-    padding: 30px;
-    border-radius: 12px;
-    width: 400px;
+    .modal-btn {
+        background: #7a1a1a;
+        color: white;
+        border: none;
+        padding: 8px 28px;
+        border-radius: 9999px;
+        font-weight: bold;
+        cursor: pointer;
+    }
 
-    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-    text-align: center;
-}
+    .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0,0,0,0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+    }
 
-.modal-content h3 {
-    margin-top: 0;
-    margin-bottom: 15px;
-    color: #7a1a1a;
-}
+    .modal-content {
+        background: white;
+        padding: 30px;
+        border-radius: 12px;
+        width: 400px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        text-align: center;
+    }
 
-.modal-content p {
-    color: #4b5563;
-    margin-bottom: 25px;
-    line-height: 1.5;
-}
+    .modal-content h3 {
+        margin-top: 0;
+        margin-bottom: 15px;
+        color: #7a1a1a;
+    }
 
-.modal-actions {
-    display: flex;
-    justify-content: center;
-    gap: 15px;
-}
+    .modal-content p {
+        color: #4b5563;
+        margin-bottom: 25px;
+        line-height: 1.5;
+    }
 
-.hidden-file-input {
-	display: none;
-}
+    .modal-actions {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+    }
 
-.uploaded-files {
-	margin-top: 20px;
-}
+    .hidden-file-input {
+        display: none;
+    }
 
-.file-item {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	background: #f3f4f6;
-	padding: 8px 12px;
-	border-radius: 6px;
-	margin-bottom: 8px;
-	font-size: 0.9rem;
-}
+    .uploaded-files {
+        margin-top: 20px;
+    }
 
-.blue-text {
-	background: none;
-	border: none;
-	padding: 0;
-	font: inherit;
-	color: #3b00ff;
-	font-weight: bold;
-	cursor: pointer;
-}
+    .file-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: #f3f4f6;
+        padding: 8px 12px;
+        border-radius: 6px;
+        margin-bottom: 8px;
+        font-size: 0.9rem;
+    }
+
+    .blue-text {
+        background: none;
+        border: none;
+        padding: 0;
+        font: inherit;
+        color: #3b00ff;
+        font-weight: bold;
+        cursor: pointer;
+    }
 </style>
