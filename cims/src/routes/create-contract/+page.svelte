@@ -44,7 +44,6 @@
     }
  
     let ContractName = $state("New Contract");
-    let Contractlist = $state("New Contract");
     let isEditing = $state(false);
     let isSaving = $state(false);
     let isLoadingTemplate = $state(false);
@@ -67,7 +66,6 @@
     function startEditing() { isEditing = true; }
     function saveName() {
         if (ContractName.trim() !== "") {
-            Contractlist = ContractName;
             contractData.title = ContractName; 
             isEditing = false;
         }

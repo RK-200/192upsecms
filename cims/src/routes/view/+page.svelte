@@ -158,7 +158,11 @@
         <tbody>
             {#each contracts as contract (contract.id)}
                 <tr in:fade animate:flip={{duration: 450}}>
-                    <td>{contract.title}</td>
+                    <td>
+                        <a href="/view/{contract.id}" class="contract-link">
+                            {contract.title}
+                        </a>
+                    </td>
                     <td>{new Date(contract.created_at).toLocaleDateString()}</td>
                     <td>{contract.type}</td>
                     <td>
@@ -308,4 +312,14 @@
         padding: 10px; border: 1px solid #ccc; border-radius: 8px; font-size: 0.9rem;
     }
     .search-input { width: 350px; }
+
+    .contract-link {
+    color: #02461C;
+    text-decoration: none;
+    font-weight: 600;
+    }
+    .contract-link:hover {
+        text-decoration: underline;
+        color: #7a1a1a;
+    }
 </style>

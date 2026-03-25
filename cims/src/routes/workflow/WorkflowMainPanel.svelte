@@ -30,6 +30,13 @@
 </div>
 
 <style>
+    .phases-container {
+        border: 2px solid #e5e7eb;
+        border-radius: 20px;
+        overflow: hidden;
+        background-color: #fff;
+    }
+
     .tab {
         flex: 1;
         padding: 15px 20px;
