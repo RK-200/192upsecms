@@ -236,17 +236,19 @@ function removeFile(index: number) {
 		</p>
 	</div>
 
-	{#if files.length > 0}
-		<div class="uploaded-files">
-			<h4>Uploaded Files</h4>
-			{#each files as file, i}
-				<div class="file-item">
-					{file.name}
-					<button onclick={() => removeFile(i)}>×</button>
-				</div>
-			{/each}
-		</div>
-	{/if}
+{#each files as file, i}
+<div class="file-item">
+	<a 
+	href={URL.createObjectURL(file)} 
+	target="_blank" 
+	rel="noopener noreferrer"
+	class="file-link"
+	>
+	{file.name}
+</a>
+<button onclick={() => removeFile(i)}>×</button>
+</div>
+{/each}
 </div>
 
 	<div class="pagenav">
@@ -390,12 +392,6 @@ function removeFile(index: number) {
 		margin-bottom: 15px;
 	}
 
-	.blue-text {
-		color: #3b00ff;
-		font-weight: bold;
-		cursor: pointer;
-	}
-
 	.cancel-button {
 		background: white;
 		border: 1px solid #e5e7eb;
@@ -480,9 +476,6 @@ function removeFile(index: number) {
 	display: none;
 }
 
-.uploaded-files {
-	margin-top: 20px;
-}
 
 .file-item {
 	display: flex;

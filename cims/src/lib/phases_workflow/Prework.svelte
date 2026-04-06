@@ -256,19 +256,20 @@ function removeFile(index: number) {
                     onclick={(e) => {e.stopPropagation(); (document.querySelector('.hidden-file-input') as HTMLInputElement)?.click();}}> Choose file </button> 
                     to upload </p>
                 </div>
-                
-                {#if files.length > 0}
-                <div class="uploaded-files">
-                    <h4>Uploaded Files</h4>
-                    {#each files as file, i}
-                    <div class="file-item">
-                        {file.name}
-                        <button onclick={() => removeFile(i)}>×</button>
-                    </div>
-                    {/each}
-                </div>
-                {/if}
+                {#each files as file, i}
+                <div class="file-item">
+                    <a 
+                    href={URL.createObjectURL(file)} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    class="file-link"
+                    >
+                    {file.name}
+                </a>
+                <button onclick={() => removeFile(i)}>×</button>
             </div>
+            {/each}
+        </div>
 
 	<div class="pagenav">
 		<button class="next" onclick={() => showConfirmModal = true} disabled={isLoading}>
@@ -431,6 +432,10 @@ function removeFile(index: number) {
 	}
 
 	.blue-text {
+        background: none;
+        border: none;
+        padding: 0;
+        font: inherit;
 		color: #3b00ff;
 		font-weight: bold;
 		cursor: pointer;
@@ -511,10 +516,6 @@ function removeFile(index: number) {
 
     .hidden-file-input {
     display: none;
-}
-
-.uploaded-files {
-    margin-top: 20px;
 }
 
 .file-item {

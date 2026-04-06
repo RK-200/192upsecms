@@ -39,7 +39,5 @@ export const actions = {
         .from('workflows')
         .update({ name: new_name})
         .eq('id', workflow_id)
-
-        console.log("WAAAAAH")
 	}
 }
