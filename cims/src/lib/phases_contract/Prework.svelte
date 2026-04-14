@@ -100,6 +100,7 @@
         </div>
     </div>
 
+    <!-- FILE UPLOAD 
     <div class="upload-section">
         <div class="upload-header">
             <h3>Add Default Files</h3>
@@ -126,7 +127,7 @@
 {/each}
 
     </div>
-
+-->
     <div class="pagenav">
         <button class="next" onclick={validateBeforeConfirm}>Proceed to <br/> Approval and review</button>
     </div>

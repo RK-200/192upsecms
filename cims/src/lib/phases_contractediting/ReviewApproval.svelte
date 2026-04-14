@@ -196,7 +196,7 @@
         </button>
     </div>
 
-    <!-- FILE UPLOAD -->
+    <!-- FILE UPLOAD 
     <div class="upload-section">
         <div class="upload-header">
             <h3>Add Default Files</h3>
@@ -252,6 +252,8 @@
 {/each}
     </div>
 
+    
+-->
     <div class="pagenav">
         <button class="back" onclick={handleback}>Return to <br/> Prework</button>
         <button class="next" onclick={validateBeforeConfirm}>Proceed to <br> Signing and Activation</button>

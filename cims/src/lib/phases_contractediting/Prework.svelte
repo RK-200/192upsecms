@@ -96,7 +96,7 @@
         </div>
     </div>
 
-    <!-- FILE UPLOAD -->
+    <!-- FILE UPLOAD 
     <div class="upload-section">
         <div class="upload-header">
             <h3>Add Default Files</h3>
@@ -149,7 +149,9 @@
         <button onclick={() => removeFile(i)}>×</button>
     </div>
     {/each}
-    </div>
+    </div> 
+    
+    -->
 
     <!-- PAGE NAVIGATION -->
     <div class="pagenav">

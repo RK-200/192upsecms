@@ -143,7 +143,7 @@
         </button>
     </div>
 
-    <!-- FILE UPLOAD -->
+    <!-- FILE UPLOAD 
     <div class="upload-section">
         <div class="upload-header">
             <h3>Add Default Files</h3>
@@ -199,12 +199,14 @@
 {/each}
 
     </div>
+-->
 
     <div class="pagenav">
         <button class="back" onclick={handleback}>Return to <br/> Review and Approval</button>
         <button class="next" onclick={validateBeforeConfirm}>Proceed to <br> Postwork </button>
     </div>
 </div>
+
 
 <!-- MODALS -->
 {#if showError}
