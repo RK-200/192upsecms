@@ -2,6 +2,7 @@
 	import { fly } from 'svelte/transition';
 	import { createEventDispatcher } from "svelte";
 	import { supabase } from "$lib/supabaseInit";
+	import { uploadFiles, saveFileRecords, loadFiles, deleteFile } from '$lib/fileService';
 
 	let { activationId } = $props();
 
@@ -11,7 +12,8 @@
 	let isSaving = $state(false);
 	let isLoading = $state(true);
 	let showConfirmModal = $state(false);
-	let files = $state<File[]>([]);
+	let newFiles = $state<File[]>([]);
+	let existingFiles = $state<string[]>([]);
 
 	const dispatch = createEventDispatcher();
 
@@ -25,6 +27,12 @@
 				{ name: "Party 2", done: false }
 			];
 		}
+
+		loadParties(activationId);
+
+		loadFiles('activation', activationId).then(files => {
+			existingFiles = Array.from(new Set(files));
+		});
 	});
 
 	async function loadParties(currentId: string) {
@@ -59,15 +67,21 @@
 	}
 
 	async function saveAndNext() {
+		if (isSaving) return;
+		isSaving = true;
 		if (!activationId) {
 			alert("Missing Activation ID. Cannot save.");
 			showConfirmModal = false;
 			return;
 		}
 
-		isSaving = true;
-
 		try {
+
+			const uploadedUrls = await uploadFiles (activationId, newFiles);
+			if (uploadedUrls.length > 0) {
+				await saveFileRecords('activation', activationId, uploadedUrls);
+			}
+
 			const validParties = parties.filter(p => p.name.trim() !== "");
 			
 			const pureJsonParties = JSON.parse(JSON.stringify(validParties));
@@ -78,6 +92,7 @@
 				.eq('id', activationId);
 
 			if (error) throw error;
+			newFiles = [];
 
 			showConfirmModal = false;
 			dispatch("next");
@@ -93,14 +108,14 @@
 function handleFileSelect(event: Event) {
 	const input = event.target as HTMLInputElement;
 	if (input.files) {
-		files = [...files, ...Array.from(input.files)];
+		newFiles = [...newFiles, ...Array.from(input.files)];
 	}
 }
 
 function handleDrop(event: DragEvent) {
 	event.preventDefault();
 	if (event.dataTransfer?.files) {
-		files = [...files, ...Array.from(event.dataTransfer.files)];
+		newFiles = [...newFiles, ...Array.from(event.dataTransfer.files)];
 	}
 }
 
@@ -109,7 +124,15 @@ function handleDragOver(event: DragEvent) {
 }
 
 function removeFile(index: number) {
-	files = files.filter((_, i) => i !== index);
+	newFiles = newFiles.filter((_, i) => i !== index);
+}
+
+async function handleDelete(index: number) {
+	const url = existingFiles[index];
+
+	await deleteFile('activation', activationId, url);
+
+	existingFiles = existingFiles.filter((_, i) => i !== index);
 }
 </script>
 
@@ -189,19 +212,28 @@ function removeFile(index: number) {
 		</p>
 	</div>
 
-{#each files as file, i}
+{#each existingFiles as url, i}
 <div class="file-item">
-	<a 
-	href={URL.createObjectURL(file)} 
-	target="_blank" 
-	rel="noopener noreferrer"
-	class="file-link"
-	>
-	{file.name}
-</a>
-<button onclick={() => removeFile(i)}>×</button>
+	<a href={url} target="_blank">
+		{url.split('/').pop()}
+	</a>
+	<button onclick={() => handleDelete(i)}>×</button>
 </div>
 {/each}
+
+{#each newFiles as file, i}
+<div class="file-item">
+	<a 
+		href={URL.createObjectURL(file)} 
+		target="_blank" 
+		rel="noopener noreferrer"
+	>
+		{file.name}
+	</a>
+	<button onclick={() => removeFile(i)}>×</button>
+</div>
+{/each}
+
 </div>
 
 	<!-- FOOTER NAVIGATION -->

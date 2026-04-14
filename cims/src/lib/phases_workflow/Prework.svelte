@@ -10,6 +10,7 @@
         slide
     } from 'svelte/transition';
   import { supabase } from "$lib/supabaseInit"; 
+  import { uploadFiles, saveFileRecords, loadFiles, deleteFile } from '$lib/fileService';
 
   export let preworkId: string; 
 
@@ -23,10 +24,10 @@
   let isSaving = false;
   let isLoading = true;
   let showConfirmModal = false;
-
   let files: File[] = [];
-  //let fileUrls: string[] = [];
-  //let urlInput = "";
+  let newFiles: File[] = [];
+  let existingFiles: string[] = [];
+
 
   // Store dictionary reqs from the DB
   let availableReqs: { id: number, name: string, type: string }[] =[];
@@ -49,6 +50,10 @@
   // updates checklist when you click a different workflow
   $: if (preworkId) {
       loadChecklist(preworkId);
+
+      loadFiles('prework', preworkId).then(files => {
+        existingFiles = files;
+    });
   }
 
   // loading logic
@@ -79,6 +84,34 @@
     }
     isLoading = false;
   }
+
+  async function deleteExistingFile(index: number) {
+    const fileUrl = existingFiles[index];
+
+    try {
+        const url = new URL(fileUrl);
+        const path = url.pathname.split('/storage/v1/object/public/stage-files/')[1];
+
+        const { error: storageError } = await supabase.storage
+            .from('stage-files')
+            .remove([path]);
+
+        if (storageError) throw storageError;
+
+        const { error: dbError } = await supabase
+            .from('prework_files')
+            .delete()
+            .eq('file_url', fileUrl);
+
+        if (dbError) throw dbError;
+
+        existingFiles = existingFiles.filter((_, i) => i !== index);
+
+    } catch (err) {
+        console.error("Delete failed:", err);
+        alert("Failed to delete file.");
+    }
+}
 
   function addNewField() {
     checklist =[...checklist, { text: "", done: false, reqType: "String" }];
@@ -155,6 +188,10 @@
 
             if (bridgeErr) throw bridgeErr;
         }
+        const uploadedUrls = await uploadFiles(preworkId, newFiles);
+        if (uploadedUrls.length > 0) {
+            await saveFileRecords('prework', preworkId, uploadedUrls);
+        }
 
         showConfirmModal = false;
         dispatch("next"); // tell parent to switch phase
@@ -170,23 +207,34 @@
   function handleFileSelect(event: Event) {
     const input = event.target as HTMLInputElement;
     if (input.files) {
-        files = [...files, ...Array.from(input.files)];
+        newFiles = [...newFiles, ...Array.from(input.files)];
     }
+}
+
+async function handleDelete(index: number) {
+    const url = existingFiles[index];
+
+    await deleteFile('prework', preworkId, url);
+
+    existingFiles = existingFiles.filter((_, i) => i !== index);
 }
 
 function handleDrop(event: DragEvent) {
     event.preventDefault();
     if (event.dataTransfer?.files) {
-        files = [...files, ...Array.from(event.dataTransfer.files)];
+        newFiles = [...newFiles, ...Array.from(event.dataTransfer.files)];
     }
 }
 
 function handleDragOver(event: DragEvent) {
     event.preventDefault();
+    if (event.dataTransfer?.files){
+        newFiles = [...newFiles, ...Array.from(event.dataTransfer.files)];
+    }
 }
 
-function removeFile(index: number) {
-    files = files.filter((_, i) => i !== index);
+function removeNewFile(index: number) {
+    newFiles = newFiles.filter((_, i) => i !== index);
 }
 
 </script>
@@ -256,18 +304,22 @@ function removeFile(index: number) {
                     onclick={(e) => {e.stopPropagation(); (document.querySelector('.hidden-file-input') as HTMLInputElement)?.click();}}> Choose file </button> 
                     to upload </p>
                 </div>
-                {#each files as file, i}
-                <div class="file-item">
-                    <a 
-                    href={URL.createObjectURL(file)} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    class="file-link"
-                    >
-                    {file.name}
-                </a>
-                <button onclick={() => removeFile(i)}>×</button>
-            </div>
+
+                <!-- EXISTING FILES FROM DB -->
+                 {#each existingFiles as url, i}
+                 <div class="file-item">
+        <a href={url} target="_blank">{url.split('/').pop()}</a>
+        <button onclick={() => handleDelete(i)}>×</button>
+    </div>
+                 {/each}
+                
+                <!-- NEW FILES (NOT YET SAVED) -->
+                 {#each newFiles as file, i}
+                 <div class="file-item">
+        <a href={URL.createObjectURL(file)} target="_blank">{file.name}</a>
+        <button onclick={() => newFiles = newFiles.filter((_, j) => j !== i)}>×</button>
+    </div>
+
             {/each}
         </div>
 

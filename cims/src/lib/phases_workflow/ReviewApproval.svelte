@@ -2,6 +2,7 @@
 	import { fly } from 'svelte/transition';
 	import { createEventDispatcher } from "svelte";
 	import { supabase } from "$lib/supabaseInit";
+	import { uploadFiles, saveFileRecords, loadFiles, deleteFile } from '$lib/fileService';
 
 	let { approvalId } = $props();
 
@@ -12,7 +13,8 @@
 	let isSaving = $state(false);
 	let isLoading = $state(true);
 	let showConfirmModal = $state(false);
-	let files = $state<File[]>([]);
+	let newFiles = $state<File[]>([]);
+	let existingFiles = $state<string[]>([]);
 
 	const dispatch = createEventDispatcher();
 
@@ -27,8 +29,14 @@
 					items: [{ text: "Approval Item", done: false }]
 				}
 			];
+			return;
 		}
-	});
+
+		loadChecklist(approvalId)
+		loadFiles('approval', approvalId).then(files => {
+			existingFiles = Array.from(new Set(files));
+		})
+    });
 
 	async function loadChecklist(currentId: string) {
 		isLoading = true;
@@ -79,15 +87,24 @@
 	}
 
 	async function saveAndNext() {
+		if (isSaving) return;
+		isSaving = true;
+		
 		if (!approvalId) {
 			alert("Missing Approval ID. Cannot save.");
 			showConfirmModal = false;
+			isSaving = false;
 			return;
 		}
-
-		isSaving = true;
 		
 		try {
+
+			const uploadedUrls = await uploadFiles(approvalId, newFiles);
+			
+			if (uploadedUrls.length > 0){
+				await saveFileRecords('approval', approvalId, uploadedUrls);
+			}
+
 			// remove completely blank stages, and remove blank items inside valid stages
 			const validStages = stages
 				.filter(stage => stage.name.trim() !== "")
@@ -105,6 +122,7 @@
 				.eq('id', approvalId);
 
 			if (error) throw error;
+			newFiles = [];
 
 			showConfirmModal = false;
 			dispatch("next");
@@ -120,14 +138,22 @@
 function handleFileSelect(event: Event) {
 	const input = event.target as HTMLInputElement;
 	if (input.files) {
-		files = [...files, ...Array.from(input.files)];
+		newFiles = [...newFiles, ...Array.from(input.files)];
 	}
+}
+
+async function handleDelete(index: number) {
+    const url = existingFiles[index];
+
+    await deleteFile('approval', approvalId, url);
+
+    existingFiles = existingFiles.filter((_, i) => i !== index);
 }
 
 function handleDrop(event: DragEvent) {
 	event.preventDefault();
 	if (event.dataTransfer?.files) {
-		files = [...files, ...Array.from(event.dataTransfer.files)];
+		newFiles = [...newFiles, ...Array.from(event.dataTransfer.files)];
 	}
 }
 
@@ -136,7 +162,7 @@ function handleDragOver(event: DragEvent) {
 }
 
 function removeFile(index: number) {
-	files = files.filter((_, i) => i !== index);
+	newFiles = newFiles.filter((_, i) => i !== index);
 }
 </script>
 
@@ -236,19 +262,19 @@ function removeFile(index: number) {
 		</p>
 	</div>
 
-{#each files as file, i}
-<div class="file-item">
-	<a 
-	href={URL.createObjectURL(file)} 
-	target="_blank" 
-	rel="noopener noreferrer"
-	class="file-link"
-	>
-	{file.name}
-</a>
-<button onclick={() => removeFile(i)}>×</button>
-</div>
-{/each}
+	{#each existingFiles as url, i}
+    <div class="file-item">
+        <a href={url} target="_blank">{url.split('/').pop()}</a>
+        <button onclick={() => handleDelete(i)}>×</button>
+    </div>
+	{/each}
+	
+	{#each newFiles as file, i}
+    <div class="file-item">
+        <a href={URL.createObjectURL(file)} target="_blank">{file.name}</a>
+        <button onclick={() => newFiles = newFiles.filter((_, j) => j !== i)}>×</button>
+	</div>
+	{/each}
 </div>
 
 	<div class="pagenav">
