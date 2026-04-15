@@ -9,30 +9,16 @@
     let activeWorkflowId = $derived(activeWorkflow.id);
     let displayedWorkflowName = $state(activeWorkflow.name);
 
-    //let workflowList = $state("New Workflow"); // temporarily not a list yet
     let isEditing = $state(false);
 
     function startEditing() {
         isEditing = true;
     }
 
-    function saveName() {
-         if (displayedWorkflowName.trim() !== "") {
-                //isEditing = false;
-            }
-    }
-
-    function handleKeydown(event: KeyboardEvent) {
-        if (event.key === 'Enter') {
-            saveName()
-        }
-    }
-
-    function switchActiveContract(newName: string) {
-        console.log(workflows);
-        activeWorkflow = workflows.find(item => item.name === newName) || workflows[0];
+    // Handles updating the displayed name and exiting edit mode when dropdown changes
+    function handleWorkflowChange() {
         displayedWorkflowName = activeWorkflow.name;
-        console.log(activeWorkflow);
+        isEditing = false; 
     }
 </script>
 
@@ -40,45 +26,48 @@
     <h1 style="text-align:center; margin-top: 4rem;">You do not have access to view this page. <br> Please contact a Workflow Manager.</h1>
 {:else}
 <div class="main-content">
-    <div class="sidebar">
-        <h2>Workflows</h2>
-        {#each workflows as w}
-            <button onclick={() => switchActiveContract(w.name)}>
-                {w.name}
-            </button>
-        {/each}
-    </div>
-
     <div class="workflow-area">
         
         <div class="workflow-header">
-            {#if isEditing}
-                <div class="edit-group">
-                    <form method="POST" action="?/update_name">
-                        <input type="hidden" name="workflow_id" value={activeWorkflowId}/>
-                        <input 
-                            type="text" 
-                            name="new_name"
-                            bind:value={displayedWorkflowName} 
-                            onkeydown={handleKeydown}
-                            class="title-input"
-                            autofocus
-                        />
-                        <button class="action-btn save-btn" onclick={saveName}>
-                            <Check size={16} strokeWidth={3} />
-                            <span>Save</span>
+            <div class="left-section">
+                {#if isEditing}
+                    <div class="edit-group">
+                        <form method="POST" action="?/update_name" class="inline-form">
+                            <input type="hidden" name="workflow_id" value={activeWorkflowId}/>
+                            <input 
+                                type="text" 
+                                name="new_name"
+                                bind:value={displayedWorkflowName} 
+                                class="title-input"
+                                autofocus
+                            />
+                            <button class="action-btn save-btn">
+                                <Check size={16} strokeWidth={3} />
+                            </button>
+                        </form>
+                    </div>
+                {:else}
+                    <div class="view-group">
+                        <h1 class="page-title">{displayedWorkflowName}</h1>
+                        <button class="action-btn rename-btn" onclick={startEditing}>
+                            <Pencil size={16} strokeWidth={2.5} />
                         </button>
-                    </form>
-                </div>
-            {:else}
-                <div class="view-group">
-                    <h1 class="page-title">{displayedWorkflowName}</h1>
-                    <button class="action-btn rename-btn" onclick={startEditing}>
-                        <Pencil size={16} strokeWidth={2.5} />
-                        <span>Rename</span>
-                    </button>
-                </div>
-            {/if}
+                    </div>
+                {/if}
+            </div>
+
+            <div class="right-section">
+                <span class="workflow-label">Select Workflow:</span>
+                <select 
+                    class="workflow-select" 
+                    bind:value={activeWorkflow} 
+                    onchange={handleWorkflowChange}
+                >
+                    {#each workflows as w}
+                        <option value={w}>{w.name}</option>
+                    {/each}
+                </select>
+            </div>
         </div>
     
         <WorkflowMainPanel workflow={activeWorkflow} />
@@ -88,18 +77,61 @@
 
 <style>
     .main-content {
-        display: grid;
-        grid-template-columns: 1fr 5fr;
-        gap: 2rem;
-        padding: 2rem;
-    }
-    .sidebar {
-        border-right: 3px solid #e5e7eb;
+        display: block; 
+        max-width: 1400px;
+        margin: 2rem auto;
+        padding: 0 1.5rem;
     }
 
     .workflow-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
         min-height: 3rem;
-        margin-bottom: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .right-section {
+        display: flex;
+        align-items: center;
+    }
+
+    .workflow-label {
+        font-family: 'Poppins', sans-serif;
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #02461C;
+        margin-right: 0.75rem;
+    }
+
+    .workflow-select {
+        font-family: 'Poppins', sans-serif;
+        font-size: 0.95rem;
+        padding: 0.5rem 0.5rem;
+        border: 2px solid #e5e7eb;
+        border-radius: 8px;
+        color: rgb(68, 68, 68);
+        background-color: white;
+        outline: none;
+        cursor: pointer;
+        font-weight: 600;
+        transition: border-color 0.2s;
+        
+        width: 240px; 
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        overflow: hidden;
+    }
+
+    .workflow-select:focus, .workflow-select:hover {
+        border-color: #7B1113;
+    }
+
+    .inline-form {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        margin: 0;
     }
 
     .view-group, .edit-group {
@@ -115,6 +147,7 @@
         margin: 0;
         color: #02461C;
     }
+
     .title-input {
         font-family: 'Poppins', sans-serif;
         font-size: 1.8rem;
@@ -125,7 +158,7 @@
         border-radius: 8px;
         outline: none;
         width: 100%;
-        max-width: 350px;
+        min-width: 450px;
     }
 
     .action-btn {

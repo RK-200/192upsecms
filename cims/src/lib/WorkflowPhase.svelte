@@ -30,8 +30,6 @@
 </script>
 
 <div class="phase">
-    <h2 style="text-align:center">{phase}</h2>
-
     {#if phase === "Prework"}
      {#key preworkId} 
         <Prework {preworkId} 

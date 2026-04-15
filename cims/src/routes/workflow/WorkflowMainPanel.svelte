@@ -12,7 +12,7 @@
                 class="tab" 
                 class:active={activePhase === phase}
             >
-                {phase}
+                {phase.toWellFormed()}
             </div>
         {/each}
     </div>
@@ -31,7 +31,7 @@
 
 <style>
     .phases-container {
-        border: 2px solid #e5e7eb;
+        border: 2px solid #dadce0;
         border-radius: 20px;
         overflow: hidden;
         background-color: #fff;
@@ -40,17 +40,18 @@
     .tab {
         flex: 1;
         padding: 15px 20px;
-        font-weight: bold;
+        font-weight: 800;
         color: #7a1a1a; 
         text-align: center;
-        border-right: 1px solid #e5e7eb;
+        border-right: 2px solid #dadce0;
         transition: background-color 0.3s ease, color 0.3s ease; 
     }
      .tab-bar {
         display: flex;
+        font-size: 1.1rem;
         width: 100%;
         background-color: #f3f4f6;
-        border-bottom: 2px solid #e5e7eb;
+        border-bottom: 2px solid #dadce0;
     }
     .tab:last-child {
         border-right: none;
@@ -60,7 +61,7 @@
         color: white;              
     }
     .content-area {
-        padding: 40px;
+        padding: 15px 40px;
         min-height: 400px;
     }
     :global(.workflow-phase-root) {
