@@ -55,10 +55,17 @@ export const load: PageServerLoad = async ({ url, locals: { supabase, safeGetSes
 		return { contracts: [], filters: { year, type, status }};
 	}
 
+
+	const { data: users } = await supabase
+        .from('profiles')
+        .select('id, username, access_level')
+        .in('access_level', ['Workflow Manager', 'Contract Manager']);
+
 	return {
 		access : access?.access_level,
 		contracts: data,
 		filters: { year, type, status, search },
-		session_id: access?.id
+		session_id: access?.id,
+		users: users ?? []
 	};
 }

@@ -18,15 +18,7 @@
     const viewerUsers = $derived(
         users.filter(u => viewers.includes(u.id))
     );
-
-    const availableEditors = $derived(
-        users.filter(u => !editors.includes(u.id))
-    );
-
-    const availableViewers = $derived(
-        users.filter(u => !viewers.includes(u.id))
-    );
-
+    
     const isEditor = $derived(
         editorUsers.some(u => u.id === session_id)
     );

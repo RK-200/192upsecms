@@ -18,7 +18,14 @@
     import { supabase } from "$lib/supabaseInit"; 
 
     let { data } = $props();
-    let { access, contracts, filters } = $derived(data); 
+    let { access, contracts, filters, users, session_id} = $derived(data); 
+
+    const visibleContracts = $derived(
+    contracts?.filter(contract =>
+        contract.editors?.includes(session_id) ||
+        contract.viewers?.includes(session_id)
+    ) ?? []
+);
 
     let showConfirmModal = $state(false);
     let isUpdating = $state(false);
@@ -156,7 +163,9 @@
             </tr>
         </thead>
         <tbody>
-            {#each contracts as contract (contract.id)}
+            {#each visibleContracts as contract (contract.id)}
+            
+
                 <tr in:fade animate:flip={{duration: 450}}>
                     <td>
                         <a href="/view/{contract.id}" class="contract-link">
