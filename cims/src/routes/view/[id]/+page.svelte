@@ -1,11 +1,46 @@
 <script lang="ts">
     let { data } = $props();
+    let users = $derived(data.users);
+    let session_id = $derived(data.session_id);
     let contract = $derived(data.contract);
     let prework = $derived(data.prework || []);
     let approvals = $derived(data.approvals || { stages: [] });
     let activations = $derived(data.activations || []);
     let postwork = $derived(data.postwork || { milestones: [], termination: { type: "", reason: "" } });
+
+    const editors = $derived(contract?.editors ?? []);
+    const viewers = $derived(contract?.viewers ?? []);
+
+    const editorUsers = $derived(
+        users.filter(u => editors.includes(u.id))
+    );
+
+    const viewerUsers = $derived(
+        users.filter(u => viewers.includes(u.id))
+    );
+
+    const availableEditors = $derived(
+        users.filter(u => !editors.includes(u.id))
+    );
+
+    const availableViewers = $derived(
+        users.filter(u => !viewers.includes(u.id))
+    );
+
+    const isEditor = $derived(
+        editorUsers.some(u => u.id === session_id)
+    );
+
+    const isViewer = $derived(
+        viewerUsers.some(u => u.id === session_id)
+    );
+
+
 </script>
+
+{#if !isEditor && !isViewer}
+    <p>You are not an editor or viewer for this contract.</p>
+{:else}
 
 <div class="main-content">
     <div class="header">
@@ -132,6 +167,7 @@
         {/if}
     </div>
 </div>
+{/if}
 
 <style>
     :global(body) {

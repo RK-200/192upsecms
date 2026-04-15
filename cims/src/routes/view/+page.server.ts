@@ -10,7 +10,7 @@ export const load: PageServerLoad = async ({ url, locals: { supabase, safeGetSes
 
     const { data : access } = await supabase
     .from('profiles')
-    .select(`access_level`)
+    .select(`access_level, id`)
     .eq('id', session.user.id)
     .single()
 
@@ -58,6 +58,7 @@ export const load: PageServerLoad = async ({ url, locals: { supabase, safeGetSes
 	return {
 		access : access?.access_level,
 		contracts: data,
-		filters: { year, type, status, search }
+		filters: { year, type, status, search },
+		session_id: access?.id
 	};
 }

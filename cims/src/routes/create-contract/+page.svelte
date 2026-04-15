@@ -9,7 +9,7 @@
     let workflows = $state<any>([]);
     let selectedWorkflowId = $state('');
     let { data } = $props();
-    let { access } = $derived(data); 
+    let { access , userId} = $derived(data); 
     
     let currentPhase = $state('Prework'); 
     
@@ -138,7 +138,7 @@
             if (!contractId) {
                 const { data: newContract, error: insertError } = await supabase
                     .from('contracts')
-                    .insert({ title: finalTitle, type: finalContractType, status: finalContractStatus })
+                    .insert({ title: finalTitle, type: finalContractType, status: finalContractStatus, editors: [userId], viewers: [userId] })
                     .select('id')
                     .single();
                 
@@ -148,7 +148,7 @@
             } else {
                 const { error: updateError } = await supabase
                     .from('contracts')
-                    .update({ title: finalTitle, type: finalContractType, status: finalContractStatus })
+                    .update({ title: finalTitle, type: finalContractType, status: finalContractStatus, editors: [userId], viewers: [userId] })
                     .eq('id', contractId);
                 
                 if (updateError) throw updateError;

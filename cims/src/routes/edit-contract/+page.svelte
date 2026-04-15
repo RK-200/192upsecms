@@ -6,17 +6,18 @@
     import { contractStore } from '$lib/contractdetail';
    
     let { data } = $props();
-    let { access } = $derived(data); 
+    let { access , contracts, users, session_id} = $derived(data); 
+
     
     let currentPhase = $state('Prework'); 
     
-    let contracts = $state<any[]>([]);
+    let allContracts = $state<any[]>([]);
     let searchQuery = $state('');
     let isDropdownOpen = $state(false);
     let isLoadingContract = $state(false);
     
     let filteredContracts = $derived(
-        contracts.filter(c => c.title.toLowerCase().includes(searchQuery.toLowerCase()))
+        allContracts.filter(c => c.title.toLowerCase().includes(searchQuery.toLowerCase()))
     );
     
     onMount(async () => {
@@ -26,7 +27,7 @@
             .order('created_at', { ascending: false });
             
         if (!error && contractList) {
-            contracts = contractList;
+            allContracts = contractList;
         }
     });
 
@@ -139,6 +140,37 @@
             reason: ""
         }
     });
+
+    const currentContract = $derived(
+        contracts.find(c => c.id === contractData?.id)
+    );
+
+    const editors = $derived(currentContract?.editors ?? []);
+    const viewers = $derived(currentContract?.viewers ?? []);
+
+    const editorUsers = $derived(
+        users.filter(u => editors.includes(u.id))
+    );
+
+    const viewerUsers = $derived(
+        users.filter(u => viewers.includes(u.id))
+    );
+
+    const availableEditors = $derived(
+        users.filter(u => !editors.includes(u.id))
+    );
+
+    const availableViewers = $derived(
+        users.filter(u => !viewers.includes(u.id))
+    );
+
+    const isEditor = $derived(
+        editorUsers.some(u => u.id === session_id)
+    );
+
+    const isViewer = $derived(
+        viewerUsers.some(u => u.id === session_id)
+    );
 
     function startEditing() { isEditing = true; }
     function saveName() {
@@ -306,8 +338,68 @@
                 <span class="loading-text"><Loader2 size={14} class="spin inline-icon" /> Loading contract data...</span>
             {/if}
         </div>
+        
+        {#if contractData.id && isEditor}
+            <div>
+                <h3>Editors</h3>
+
+                {#each editorUsers as user}
+                    <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
+                        <span>{user.username}</span>
+                        <form method="POST" action="?/removeEditor">
+                            <input type="hidden" name="userId" value={user.id} />
+                            <input type="hidden" name="contractId" value={contractData.id} />
+                            <button type="submit">Remove</button>
+                        </form>
+                    </div>
+                {/each}
+
+                <form method="POST" action="?/addEditor">
+                    <input type="hidden" name="contractId" value={contractData.id} />
+
+                    <select name="userId" required>
+                        <option disabled selected value="">Add editor</option>
+                        {#each availableEditors as user}
+                            <option value={user.id}>{user.username}</option>
+                        {/each}
+                    </select>
+
+                    <button type="submit">Add</button>
+                </form>
+                
+                <h3>Viewers</h3>
+
+                {#each viewerUsers as user}
+                    <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
+                        <span>{user.username}</span>
+                        <form method="POST" action="?/removeViewer">
+                            <input type="hidden" name="userId" value={user.id} />
+                            <input type="hidden" name="contractId" value={contractData.id} />
+                            <button type="submit">Remove</button>
+                        </form>
+                    </div>
+                {/each}
+
+                <form method="POST" action="?/addViewer">
+                    <input type="hidden" name="contractId" value={contractData.id} />
+
+                    <select name="userId" required>
+                        <option disabled selected value="">Add viewer</option>
+                        {#each availableViewers as user}
+                            <option value={user.id}>{user.username}</option>
+                        {/each}
+                    </select>
+
+                    <button type="submit">Add</button>
+                </form>
+
+            </div>
+        {/if}
     </div>
 
+    {#if contractData.id && !isEditor}
+        <p>You do not have editor access to this contract. Try viewing it from the View Contracts tab instead!</p>
+    {:else}
     <div class="workflow-area">
         <div class="workflow-header">
             {#if isEditing}
@@ -356,6 +448,7 @@
             </div>
         {/if}
     </div>
+    {/if}
 </div>
 
 {#if showModal}

@@ -9,11 +9,12 @@ export const load: PageServerLoad = async ({ url, locals: { supabase, safeGetSes
 
     const { data : access } = await supabase
     .from('profiles')
-    .select(`access_level`)
+    .select(`access_level, id`)
     .eq('id', session.user.id)
     .single()
 
     return {
-        access : access?.access_level
+        access : access?.access_level,
+        userId : access?.id
     }
 }
