@@ -4,29 +4,41 @@
 
     let activePhase = $state("Prework");
     let phases = ["Prework", "Review and Approval", "Signing and Activation", "Postwork"];
+
+    let workflowId = $derived(workflow?.id);
+    let preworkId = $derived(workflow?.prework);
+    let approvalId = $derived(workflow?.approval);
+    let activationId = $derived(workflow?.activation);
+    let postworkId = $derived(workflow?.postwork);
 </script>
 <div class="phases-container">
     <div class="tab-bar">
         {#each phases as phase}
-            <div 
-                class="tab" 
+            <div
+                class="tab"
                 class:active={activePhase === phase}
             >
                 {phase.toWellFormed()}
             </div>
         {/each}
     </div>
-    
-    <div class="content-area">
-        <WorkflowPhase 
-            phase={activePhase}
-            onPhaseChange={(newPhase) => activePhase = newPhase}
-            preworkId={workflow?.prework} 
-            approvalId={workflow?.approval}
-            activationId={workflow?.activation}
-            postworkId={workflow?.postwork}
-        />
-    </div>
+
+    {#if workflowId}
+        <div class="content-area">
+            <WorkflowPhase
+                phase={activePhase}
+                onPhaseChange={(newPhase) => activePhase = newPhase}
+                preworkId={preworkId}
+                approvalId={approvalId}
+                activationId={activationId}
+                postworkId={postworkId}
+            />
+        </div>
+    {:else}
+        <div class="content-area empty-state">
+            <p>No workflow selected or available.</p>
+        </div>
+    {/if}
 </div>
 
 <style>
@@ -63,6 +75,14 @@
     .content-area {
         padding: 15px 40px;
         min-height: 400px;
+    }
+
+    .content-area.empty-state {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #666;
+        font-family: 'Poppins', sans-serif;
     }
     :global(.workflow-phase-root) {
         display: grid;
