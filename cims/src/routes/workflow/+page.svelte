@@ -257,6 +257,7 @@
     .add-btn {
         background-color: #035a24;
         padding: 8px;
+        margin: 10px;
     }
     .add-btn:hover {
         background-color: #02451C;
@@ -273,6 +274,7 @@
     .add-confirm-btn {
         background-color: #035a24;
         padding: 8px;
+        margin: 10px;
     }
     .add-confirm-btn:hover {
         background-color: #02451C;

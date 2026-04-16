@@ -80,7 +80,7 @@
     }
 
     .content-area {
-        padding: 40px;
+        padding: 15px 40px;
         min-height: 400px;
     }
     
