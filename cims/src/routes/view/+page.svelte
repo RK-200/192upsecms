@@ -24,7 +24,7 @@
     
     let existingTypes = $state<string[]>([]);
 
-    let currentSort = $derived($page.url.searchParams.get('sort') || 'title-asc');
+    let currentSort = $derived($page.url.searchParams.get('sort') || 'last_modified-desc');
     let sortKey = $derived(currentSort.split('-')[0]);
     let sortAsc = $derived(currentSort.split('-')[1] === 'asc');
 
@@ -150,7 +150,7 @@
                         <th onclick={() => updateSort(column)} style="cursor: pointer;">
                             <div class="th-content">
                                 {column === 'created_at' ? 'CREATED ON' : 
-                                 column === 'last_modified' ? 'LAST MODIFIED' : 
+                                 column === 'last_modified' ? 'LAST MODIFIED ON' : 
                                  column.toUpperCase()}
                                 
                                 {#if sortKey === column}
@@ -381,11 +381,11 @@
         white-space: nowrap;
     }
 
-    th:nth-child(1), td:nth-child(1) { width: 30%; } /* Title */
+    th:nth-child(1), td:nth-child(1) { width: 39%; } /* Title */
     th:nth-child(2), td:nth-child(2) { width: 15%; } /* Created */
     th:nth-child(3), td:nth-child(3) { width: 15%; } /* Modified */
     th:nth-child(4), td:nth-child(4) { width: 20%; } /* Type */
-    th:nth-child(5), td:nth-child(5) { width: 20%; } /* Status */
+    th:nth-child(5), td:nth-child(5) { width: 11%; } /* Status */
 
     .contract-link {
         color: #02461C;

@@ -63,6 +63,10 @@
                 <span class="detail-label">Created On</span>
                 <span class="detail-value">{new Date(contract.created_at).toLocaleDateString()}</span>
             </div>
+            <div class="detail-item">
+                <span class="detail-label">Last Modified On</span>
+                <span class="detail-value">{new Date(contract.last_modified).toLocaleDateString()}</span>
+            </div>
         </div>
     </div>
 

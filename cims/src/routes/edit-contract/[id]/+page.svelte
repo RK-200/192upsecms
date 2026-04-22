@@ -175,7 +175,8 @@
                 .update({ 
                     title: contractData.title,
                     type: finalContractType,
-                    status: finalContractStatus
+                    status: finalContractStatus,
+                    last_modified: new Date().toISOString()
                 })
                 .eq('id', contractId);
             

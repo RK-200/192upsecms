@@ -18,7 +18,7 @@ export const load: PageServerLoad = async ({ url, locals: { supabase, safeGetSes
     const type = url.searchParams.get('type') || 'All';
     const status = url.searchParams.get('status') || 'All';
     const search = url.searchParams.get('search') || '';
-	const sort = url.searchParams.get('sort') || 'title-asc';
+	const sort = url.searchParams.get('sort') || 'last_modified-desc';
 
 	let query = supabase.from('contracts').select('*');
 
