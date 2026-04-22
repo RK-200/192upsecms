@@ -1,122 +1,136 @@
 <script lang="ts">
-	import upSeal from '$lib/assets/UP-Seal.png';
-	import upseLogo from '$lib/assets/UPSE CMS logo.png'; 
-	import { Files, FilePlusCorner, TextSearch } from 'lucide-svelte';
+    import upSeal from '$lib/assets/UP-Seal.png';
+    import upseLogo from '$lib/assets/UPSE CMS logo.png'; 
+    import { Files, FilePlusCorner, TextSearch, Home } from 'lucide-svelte'; // Imported Home icon
 
-	import { invalidate } from '$app/navigation'
-	import { onMount } from 'svelte'
-	let { data, children } = $props()
-	let { supabase, session } = $derived(data)
+    import { invalidate } from '$app/navigation';
+    import { onMount } from 'svelte';
+    
+    let { data, children } = $props();
+    let { supabase, session } = $derived(data);
 
-	onMount(() => {
-		const { data } = supabase.auth.onAuthStateChange((event, _session) => {
-			if (_session?.expires_at !== session?.expires_at) {
-				invalidate('supabase:auth')
-			}
-		})
-		return () => data.subscription.unsubscribe()
-	})
+    onMount(() => {
+        const { data } = supabase.auth.onAuthStateChange((event, _session) => {
+            if (_session?.expires_at !== session?.expires_at) {
+                invalidate('supabase:auth');
+            }
+        });
+        return () => data.subscription.unsubscribe();
+    });
 </script>
 
 <svelte:head>
-	<title>UPSE Contracts Management System</title>
-	<link rel="icon" href={upSeal} />
+    <title>UPSE Contracts Management System</title>
+    <link rel="icon" href={upSeal} />
 </svelte:head>
 
 <header class="header-container">
-	<div class="logo-section">
-		<a href="/">
-			<img src={upseLogo} alt="UPSE CMS Logo" class="logo-img" />
-		</a>
-	</div>
+    <div class="logo-section">
+        <a href="/account">
+            <img src={upseLogo} alt="UPSE CMS Logo" class="logo-img" />
+        </a>
+    </div>
 
-	<nav class="nav-links">
-		<a href="/workflow" class="nav-btn">
-			<Files size={24} strokeWidth={2.5} />
-			<span class="nav-btn-txt">Workflows</span>
-		</a>
+    <nav class="nav-links">
+        <a href="/account" class="nav-link">
+            <Home size={18} strokeWidth={2.5} />
+            <span>Home</span>
+        </a>
 
-		<a href="/view" class="nav-btn">
-			<TextSearch size={24} strokeWidth={2.5} />
-			<span class="nav-btn-txt">Contracts</span>
-		</a>
+        <a href="/workflow" class="nav-link">
+            <Files size={18} strokeWidth={2.5} />
+            <span>Workflows</span>
+        </a>
 
-		<a href="/create-contract" class="nav-btn create-btn">
-			<FilePlusCorner size={24} strokeWidth={2.5} />
-			<span class="nav-btn-txt">Create Contract</span>
-		</a>
-		
-		
-	</nav>
+        <a href="/view" class="nav-link">
+            <TextSearch size={18} strokeWidth={2.5} />
+            <span>Contracts</span>
+        </a>
+
+        <a href="/create-contract" class="nav-link create-btn">
+            <FilePlusCorner size={18} strokeWidth={2.5} />
+            <span>Create Contract</span>
+        </a>
+    </nav>
 </header>
 
 <main>
-	{@render children()}
+    {@render children()}
 </main>
 
 <style>
-	@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
 
     :global(body) {
         font-family: 'Poppins', sans-serif;
         margin: 0;
+        background-color: #f9fafb;
     }
-	.header-container {
-		display: flex;
-		align-items: center; 
-		justify-content: space-between;
-		padding: 0.75rem 2.5rem;
-		background-color: white;
-		border-bottom: 1px solid #e5e7eb;
-		box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-	}
 
-	.logo-img {
-		height: 80px;
-		width: auto;
-		display: block;
-	}
+    .header-container {
+        display: flex;
+        align-items: center; 
+        justify-content: space-between;
+        padding: 0.75rem 2.5rem;
+        background-color: white;
+        border-bottom: 1px solid #e5e7eb;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        position: sticky;
+        top: 0;
+        z-index: 50;
+    }
 
-	.nav-links {
-		display: flex;
-		flex-direction: row;
-		gap: 12px;
-		align-items: center;
-	}
+    .logo-img {
+        height: 60px;
+        width: auto;
+        display: block;
+    }
 
-	.nav-btn {
-		display: flex;
-		align-items: center;
-		gap: 8px;
-		padding: 8px 20px;
-		background-color: #7B1113;
-		color: white;
-		border-radius: 9999px;
-		text-decoration: none;
-		font-weight: 600;
-		font-size: 13px;
-		white-space: nowrap;
-		transition: background-color 0.2s, transform 0.1s;
-		box-shadow: 0 3px 6px rgba(0,0,0,0.1);
-	}
+    .nav-links {
+        display: flex;
+        flex-direction: row;
+        gap: 0.5rem;
+        align-items: center;
+    }
 
-	.create-btn {
-		background-color: #02461C;
-	}
+    .nav-link {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 16px;
+        color: #4b5563; 
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 0.95rem; 
+        border-radius: 8px;
+        transition: all 0.2s ease;
+    }
 
-	.nav-btn-txt {
-		font-size: 18px;
-	}
+    .nav-link:hover {
+        color: #7B1113;
+        background-color: #fff0f0;
+    }
 
-	.nav-btn:hover {
-		background-color: #5a0c0e;
-	}
+    .nav-link:active {
+        transform: scale(0.97);
+    }
 
-	.create-btn:hover {
-		background-color: #023214;
-	}
+    .create-btn {
+        background-color: #02461C;
+        color: white;
+        font-weight: 600;
+        margin-left: 0.5rem;
+        box-shadow: 0 2px 4px rgba(2, 70, 28, 0.15);
+    }
 
-	.nav-btn:active {
-		transform: scale(0.96);
-	}
+    .create-btn:hover {
+        background-color: #023214;
+        color: white;
+        box-shadow: 0 4px 6px rgba(2, 70, 28, 0.25);
+        transform: translateY(-1px);
+    }
+
+    .create-btn:active {
+        transform: scale(0.97) translateY(0);
+    }
 </style>
