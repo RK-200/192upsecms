@@ -47,7 +47,7 @@
             </span>
         </div>
         <div class="action-buttons">
-            <a href="#top" class="btn-cancel"> Edit </a>
+            <a href="/edit-contract/{contract.id}" class="btn-cancel"> Edit </a>
             <a href="/view" class="btn-cancel"> Back </a>
         </div>
     </div>
@@ -60,7 +60,7 @@
                 <span class="detail-value">{contract.type}</span>
             </div>
             <div class="detail-item">
-                <span class="detail-label">Created At</span>
+                <span class="detail-label">Created On</span>
                 <span class="detail-value">{new Date(contract.created_at).toLocaleDateString()}</span>
             </div>
         </div>

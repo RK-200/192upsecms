@@ -1,7 +1,7 @@
 <script lang="ts">
 	import upSeal from '$lib/assets/UP-Seal.png';
 	import upseLogo from '$lib/assets/UPSE CMS logo.png'; 
-	import { Workflow, FilePlusCorner, Search } from 'lucide-svelte';
+	import { Files, FilePlusCorner, TextSearch } from 'lucide-svelte';
 
 	import { invalidate } from '$app/navigation'
 	import { onMount } from 'svelte'
@@ -32,24 +32,21 @@
 
 	<nav class="nav-links">
 		<a href="/workflow" class="nav-btn">
-			<Workflow size={24} strokeWidth={2.5} />
-			<span class="nav-btn-txt">Edit Workflows</span>
-		</a>
-		
-		<a href="/edit-contract" class="nav-btn">
-			<FilePlusCorner size={24} strokeWidth={2.5} />
-			<span class="nav-btn-txt">Edit Contract</span>
+			<Files size={24} strokeWidth={2.5} />
+			<span class="nav-btn-txt">Workflows</span>
 		</a>
 
-		<a href="/create-contract" class="nav-btn">
+		<a href="/view" class="nav-btn">
+			<TextSearch size={24} strokeWidth={2.5} />
+			<span class="nav-btn-txt">Contracts</span>
+		</a>
+
+		<a href="/create-contract" class="nav-btn create-btn">
 			<FilePlusCorner size={24} strokeWidth={2.5} />
 			<span class="nav-btn-txt">Create Contract</span>
 		</a>
 		
-		<a href="/view" class="nav-btn">
-			<Search size={24} strokeWidth={2.5} />
-			<span class="nav-btn-txt">View Contracts</span>
-		</a>
+		
 	</nav>
 </header>
 
@@ -103,12 +100,20 @@
 		box-shadow: 0 3px 6px rgba(0,0,0,0.1);
 	}
 
+	.create-btn {
+		background-color: #02461C;
+	}
+
 	.nav-btn-txt {
 		font-size: 18px;
 	}
 
 	.nav-btn:hover {
 		background-color: #5a0c0e;
+	}
+
+	.create-btn:hover {
+		background-color: #023214;
 	}
 
 	.nav-btn:active {
