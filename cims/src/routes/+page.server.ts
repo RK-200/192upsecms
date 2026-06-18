@@ -11,31 +11,25 @@ export const load: PageServerLoad = async ({ url, locals: { safeGetSession } }) 
 
   return { url: url.origin }
 }
+
 export const actions: Actions = {
-	default: async (event) => {
-		const {
-			url,
-			request,
-			locals: { supabase }
-		} = event
-		const formData = await request.formData()
-		const email = formData.get('email') as string
-    const validEmail = /^[\w-\.+]+@([\w-]+\.)+[\w-]{2,8}$/.test(email)
-    
-		if (!validEmail) {
-			return fail(400, { errors: { email: "Please enter a valid email address" }, email })
-		}
-		const { error } = await supabase.auth.signInWithOtp({ email })
-		if (error) {
-			return fail(400, {
-				success: false,
-				email,
-				message: `There was an issue, Please contact support.`
-			})
-		}
-		return {
-			success: true,
-			message: 'Please check your email for a magic link to log into the CIMS.'
-		}
-	}
-}
+  googleLogin: async ({ locals: { supabase }, url }) => {
+    // Call Supabase to get the OAuth authorization URL
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        // Dynamic redirect URL pointing to our SvelteKit callback route
+        redirectTo: `${url.origin}/auth/callback`,
+      },
+    });
+
+    if (error) {
+      return { success: false, message: error.message };
+    }
+
+    // Use SvelteKit's redirect helper to send the user to Google
+    if (data.url) {
+      throw redirect(303, data.url); 
+    }
+  }
+};
