@@ -289,14 +289,14 @@
 
     .next {
         flex: 0.14;
-        background: #7a1a1a;
-        color: white;
-        border: none;
+        background: transparent;
+        color: #3b00ff;
+        border: 2px solid #3b00ff;
         padding: 12px 40px;
         border-radius: 9999px;
         font-weight: bold;
         cursor: pointer;
-        transition: background-color 0.2s ease, transform 0.1s ease;
+        transition: background-color 0.2s ease, color 0.2s ease, transform 0.1s ease;
     }
 
     .pagenav {
@@ -307,7 +307,8 @@
     }
 
     .next:hover {
-        background-color: #5a1313;
+        background-color: #3b00ff;
+        color: white;
     }
 
     .next:active {

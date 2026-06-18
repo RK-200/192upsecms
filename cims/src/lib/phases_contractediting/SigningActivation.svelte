@@ -396,23 +396,24 @@
 
     .next, .back {
         flex: 0.14;
+        background: transparent;
+        border: 2px solid;
         padding: 12px 40px;
         border-radius: 9999px;
         font-weight: bold;
         cursor: pointer;
-        transition: background-color 0.2s ease, transform 0.1s ease;
+        transition: background-color 0.2s ease, color 0.2s ease, transform 0.1s ease;
     }
 
     .next {
-        background: #7a1a1a;
-        color: white;
-        border: none;
+        color: #3b00ff;
+        border-color: #3b00ff;
     }
 
     .back {
-        background: transparent;
         color: #7a1a1a;
-        border: 2px solid #7a1a1a;
+        border-color: #7a1a1a;
+        background-color: transparent;
     }
 
     .pagenav {
@@ -423,7 +424,8 @@
     }
 
     .next:hover {
-        background-color: #5a1313;
+        background-color: #3b00ff;
+        color: white;
     }
 
     .back:hover {

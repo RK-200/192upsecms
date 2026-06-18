@@ -64,7 +64,7 @@
         font-size: 16px;
         font-weight: bold;
         color: #7a1a1a;
-        cursor: pointer;
+        cursor: default;
         border-right: 1px solid #e5e7eb;
         transition: all 0.2s;
     }
@@ -76,6 +76,7 @@
     .tab.active {
         background-color: #7a1a1a; 
         color: white;
+        cursor: default;
         box-shadow: inset 0 -4px 0 rgba(0,0,0,0.1);
     }
 

@@ -409,7 +409,6 @@
     }
 
     .next {
-        flex: 0.14;
         background: transparent;
         color: #3b00ff;
         border: 2px solid #3b00ff;
