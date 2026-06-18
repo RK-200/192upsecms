@@ -152,17 +152,15 @@
 				></textarea>
 			</div>
 
-			<div class="footer-actions">
-				<button class="pill-button" onclick={() => showConfirmModal = true}>
-					Save & Confirm
-				</button>
 			</div>
-		</div>
 	{/if}
 
 	<div class="pagenav">
 		<button class="back" onclick={handleBack} disabled={isLoading || isSaving}>
 			Return to <br/> Signing and Activation
+		</button>
+		<button class="next" onclick={() => showConfirmModal = true} disabled={isLoading || isSaving}>
+			Save & <br/> Confirm
 		</button>
 	</div>
 </div>
@@ -299,21 +297,51 @@
 	.pill-button:hover:not(:disabled) { background-color: #5a1313; }
 
 	.back {
-		background-color: #7a1a1a;
-		color: white;
-		border: none;
+		background: transparent;
+		color: #7a1a1a;
+		border: 2px solid #7a1a1a;
 		padding: 12px 40px;
 		border-radius: 9999px;
 		font-weight: bold;
 		cursor: pointer;
-		box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+		transition: background-color 0.2s ease, color 0.2s ease, transform 0.1s ease;
+	}
+
+	.back:hover:not(:disabled) {
+		background-color: #7a1a1a;
+		color: white;
 	}
 
 	.pagenav {
 		grid-column: 1 / -1;
 		display: flex;
-		justify-content: flex-start;
+		justify-content: space-between;
 		margin-top: 30px;
+	}
+
+	.next {
+		background: transparent;
+		color: #035a24;
+		border: 2px solid #035a24;
+		padding: 12px 40px;
+		border-radius: 9999px;
+		font-weight: bold;
+		cursor: pointer;
+		transition: background-color 0.2s ease, color 0.2s ease, transform 0.1s ease;
+	}
+
+	.next:hover {
+		background-color: #035a24;
+		color: white;
+	}
+
+	.next:active {
+		transform: scale(0.97);
+	}
+
+	.next:disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
 	}
 
     /* MODAL STYLES */

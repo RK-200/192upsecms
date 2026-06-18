@@ -437,19 +437,25 @@ function removeFile(index: number) {
 	}
 
 	.next, .back {
-		background-color: #7a1a1a; 
-		color: white;
-		border: none;
+		background: transparent;
+		border: 2px solid;
 		padding: 12px 40px;
 		border-radius: 9999px; 
 		font-weight: bold;
 		cursor: pointer;
-		box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
-		transition: background-color 0.2s ease, transform 0.1s ease;
+		transition: background-color 0.2s ease, color 0.2s ease, transform 0.1s ease;
+	}
+
+	.next {
+		color: #3b00ff;
+		border-color: #3b00ff;
 	}
 
 	.back {
 		flex: 0.14;
+		color: #7a1a1a;
+		border-color: #7a1a1a;
+		background-color: transparent;
 	}
 
 	.pagenav {
@@ -459,8 +465,14 @@ function removeFile(index: number) {
 		margin-top: 30px;
 	}
 
-	.next:hover, .back:hover:not(:disabled) {
-		background-color: #5a1313;
+	.next:hover {
+		background-color: #3b00ff;
+		color: white;
+	}
+
+	.back:hover:not(:disabled) {
+		background-color: #7a1a1a;
+		color: white;
 	}
 
 	.next:active, .back:active:not(:disabled) {

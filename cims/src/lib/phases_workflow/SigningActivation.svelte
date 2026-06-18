@@ -363,15 +363,26 @@ async function handleDelete(index: number) {
 	.import-button { background: #3b00ff; color: white; border: none; padding: 10px 35px; border-radius: 8px; font-weight: bold; cursor: pointer; }
 
 	.next, .back {
-		background-color: #7a1a1a; color: white; border: none;
+		background: transparent; border: 2px solid;
 		padding: 12px 40px; border-radius: 9999px; font-weight: bold;
-		cursor: pointer; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
-		transition: background-color 0.2s ease, transform 0.1s ease;
+		cursor: pointer; transition: background-color 0.2s ease, color 0.2s ease, transform 0.1s ease;
+	}
+
+	.next {
+		color: #3b00ff;
+		border-color: #3b00ff;
+	}
+
+	.back {
+		color: #7a1a1a;
+		border-color: #7a1a1a;
+		background-color: transparent;
 	}
 
 	.pagenav { grid-column: 1 / -1; display: flex; justify-content: space-between; margin-top: 30px; }
 
-	.next:hover, .back:hover:not(:disabled) { background-color: #5a1313; }
+	.next:hover { background-color: #3b00ff; color: white; }
+	.back:hover:not(:disabled) { background-color: #7a1a1a; color: white; }
 	.next:active, .back:active:not(:disabled) { transform: scale(0.97); }
     .next:disabled, .back:disabled { opacity: 0.5; cursor: not-allowed; }
 
