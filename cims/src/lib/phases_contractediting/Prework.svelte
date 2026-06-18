@@ -163,7 +163,7 @@
         <div class="modal-overlay">
             <div class="modal-content">
                 <h3>Confirmation</h3>
-                <p>Are you sure you want to proceed to the Review and Approval phase?</p>
+                <p>Are you sure you want to save these requirements?</p>
                 <div class="modal-actions">
                     <button
                         class="cancel-button"
@@ -281,7 +281,7 @@
         background: #3b00ff; 
         color: white;
         border: none;
-        padding: 10px 35px;
+        padding: 8px 28px;
         border-radius: 8px;
         font-weight: bold;
         cursor: pointer;
@@ -289,14 +289,13 @@
 
     .next {
         flex: 0.14;
-        background-color: #7a1a1a;
+        background: #7a1a1a;
         color: white;
         border: none;
         padding: 12px 40px;
         border-radius: 9999px;
         font-weight: bold;
         cursor: pointer;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
         transition: background-color 0.2s ease, transform 0.1s ease;
     }
 

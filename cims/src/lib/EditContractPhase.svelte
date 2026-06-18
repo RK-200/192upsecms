@@ -7,13 +7,13 @@
     interface Props {
         phase: string;
         onPhaseChange: (p: string) => void;
-        contractData: any; 
+        contractData: any;
     }
 
     let { 
         phase, 
         onPhaseChange, 
-        contractData = $bindable() 
+        contractData = $bindable(),
     }: Props = $props();
 
     function changePhase(p: string) {

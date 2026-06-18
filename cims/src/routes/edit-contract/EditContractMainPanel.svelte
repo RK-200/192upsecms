@@ -8,7 +8,7 @@
 
     let { 
         contractData = $bindable(), 
-        currentPhase = $bindable("Prework") 
+        currentPhase = $bindable("Prework"),
     }: Props = $props();
     
     let phases = [

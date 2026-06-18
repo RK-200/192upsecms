@@ -146,7 +146,7 @@
         <div class="modal-overlay">
             <div class="modal-content">
                 <h3>Confirmation</h3>
-                <p>Are you sure you want to proceed to the Review and Approval phase?</p>
+                <p>Are you sure you want to save these requirements?</p>
                 <div class="modal-actions">
                     <button class="cancel-button" onclick={() => showConfirmModal = false} disabled={isSaving}>Cancel</button>
                     <button class="import-button" onclick={handleNext} disabled={isSaving}>Confirm & Proceed</button>
@@ -270,22 +270,22 @@
     }
     .next { 
         flex: 0.14;
-        background-color: #7a1a1a; 
-        color: white; 
-        border: none; 
+        background: transparent; 
+        color: #3b00ff; 
+        border: 2px solid #3b00ff; 
         padding: 12px 40px; 
         border-radius: 9999px; 
         font-weight: bold; 
         cursor: pointer; 
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15); 
-        transition: background-color 0.2s ease, transform 0.1s ease; }
+        transition: background-color 0.2s ease, color 0.2s ease, transform 0.1s ease; }
     .pagenav { 
         grid-column: 1 / -1; display: flex; 
         justify-content: right; 
         margin-top: 30px; 
     }
     .next:hover { 
-        background-color: #5a1313; 
+        background-color: #3b00ff;
+        color: white;
     }
     .next:active {
          transform: scale(0.97);

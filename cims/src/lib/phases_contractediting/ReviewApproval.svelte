@@ -276,7 +276,7 @@
         <div class="modal-overlay">
             <div class="modal-content">
                 <h3>Confirmation</h3>
-                <p>Are you sure you want to proceed to the Signing and Activation phase?</p>
+                <p>Are you sure you want to save these approval checks?</p>
                 <div class="modal-actions">
                     <button
                         class="cancel-button"
@@ -474,15 +474,23 @@
 
     .next, .back {
         flex: 0.14;
-        background-color: #7a1a1a;
-        color: white;
-        border: none;
         padding: 12px 40px;
         border-radius: 9999px;
         font-weight: bold;
         cursor: pointer;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
         transition: background-color 0.2s ease, transform 0.1s ease;
+    }
+
+    .next {
+        background: #7a1a1a;
+        color: white;
+        border: none;
+    }
+
+    .back {
+        background: transparent;
+        color: #7a1a1a;
+        border: 2px solid #7a1a1a;
     }
 
     .pagenav {
@@ -492,8 +500,13 @@
         margin-top: 30px;
     }
 
-    .next:hover, .back:hover {
+    .next:hover {
         background-color: #5a1313;
+    }
+
+    .back:hover {
+        background-color: #7a1a1a;
+        color: white;
     }
 
     .next:active, .back:active {

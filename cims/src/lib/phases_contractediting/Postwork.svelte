@@ -242,19 +242,19 @@
 
     .back {
         flex: 0.14;
-        background-color: #7a1a1a;
-        color: white;
-        border: none;
+        background: transparent;
+        color: #7a1a1a;
+        border: 2px solid #7a1a1a;
         padding: 12px 40px;
         border-radius: 9999px;
         font-weight: bold;
         cursor: pointer;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
-        transition: background-color 0.2s ease, transform 0.1s ease;
+        transition: background-color 0.2s ease, color 0.2s ease, transform 0.1s ease;
     }
 
     .back:hover{
-        background-color: #5a1313;
+        background-color: #7a1a1a;
+        color: white;
     }
 
     .back:active {
