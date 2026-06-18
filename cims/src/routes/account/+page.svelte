@@ -18,6 +18,7 @@
         loading = true
         return async () => {
             loading = false
+            isEditing = false
         }
     }
     const handleSignOut: SubmitFunction = () => {
